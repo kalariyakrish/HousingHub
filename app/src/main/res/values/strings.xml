@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HousingHub</string>
+    <string name="housinghub">HousingHub</string>
+    <string name="housing_hub">Housing Hub</string>
+    <string name="find_your_perfect_stay_effortlessly">Find your perfect stay effortlessly</string>
+    <string name="splash_logo_description">Logo of HousingHub</string>
+    <string name="welcome">Welcome</string>
+    <string name="sign_in_or_create_an_account">Sign in or create an account</string>
+    <string name="or">or</string>
+    <string name="password">Password</string>
+    <string name="sign_up">SignUp</string>
+    <string name="app_title">HousingHub</string>
+    <string name="app_tagline">Find Your Home</string>
+    <string name="login">Login</string>
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="enter_your_email">Enter Your Email</string>
+    <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy</string>
+    <string name="create_account">Create account</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="full_name">Full name</string>
+
+
+
+
+    <!-- Add room details strings -->
+
+    <string name="add_room_details">Add Room Details</string>
+    <string name="room_title">Room Title</string>
+    <string name="enter_room_title">Enter room title</string>
+    <string name="rent_price">Rent Price</string>
+    <string name="rent_hint">Rent (₹)</string>
+    <string name="address">Address</string>
+    <string name="enter_address">Enter full address</string>
+    <string name="room_type">Room Type</string>
+    <string name="furnishing_status">Furnishing Status</string>
+    <string name="furnished">Furnished</string>
+    <string name="semi_furnished">Semi-Furnished</string>
+    <string name="unfurnished">Unfurnished</string>
+    <string name="current_students">Current Students</string>
+    <string name="current_students_number">Number of current students</string>
+    <string name="total_capacity">Total Capacity</string>
+    <string name="total_capacity_hint">Total capacity</string>
+    <string name="gender_preference">Gender Preference</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="any">Any</string>
+    <string name="facilities">Facilities</string>
+    <string name="attached_bathroom">Attached Bathroom</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="ac_cooler">AC / Cooler</string>
+    <string name="kitchen_access">Kitchen Access</string>
+    <string name="water_timing">Water Timing</string>
+    <string name="water_timing_hint">e.g., 24/7</string>
+    <string name="description">Description</string>
+    <string name="description_hint">Describe the room</string>
+    <string name="contact_number">Contact Number</string>
+    <string name="contact_number_hint">Owner contact number</string>
+    <string name="submit_room">Submit Room</string>
+    <string name="fill_required_fields">Please fill all required fields</string>
+    <string name="room_added_success">Room added successfully!</string>
+
+    <!-- homepage -->
+
+    <!-- Location -->
+    <string name="location_vadodara">Vadodara</string>
+
+    <!-- Search -->
+    <string name="search_hint">Search rooms, areas, or landmarks</string>
+
+    <!-- Promo Banner -->
+    <string name="promo_text">Get 50% OFF\nOn your first month’s rent</string>
+
+    <!-- Sections -->
+    <string name="section_popular_near_you">Popular Near You</string>
+    <string name="section_recommendations">Recommendations for You</string>
+    <string name="section_recently_viewed">Recently Viewed</string>
+
+    <!-- Cards -->
+    <string name="card_alkapuri_price">₹25,000/mo\nALKAAPURI</string>
+    <string name="card_karelibaug_price">₹30,000/mo\nKARELIBAUG</string>
+    <string name="card_gotri_price">₹22,000/mo\nGOTRI\nSTUDIO</string>
+    <string name="card_fateggunj_price">₹35,000/mo\nFATEHGUNJ\n1 BEDROOM</string>
+    <string name="card_sayajigunj_price">₹28,000/mo\nSAYAJIGUNJ</string>
+    <string name="card_waghodia_price">₹32,000/mo\nWAGHODIA</string>
+
+    <!-- Ratings -->
+    <string name="rating_alkapuri">4.8</string>
+    <string name="rating_karelibaug">4.5</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="price_format">₹%1$.0f/month</string>
+    <string name="comfort_stay_pg">Comfort Stay PG</string>
+    <string name="luxury_studio">Luxury Studio</string>
+    <string name="budget_pg">Budget PG</string>
+
+    <string name="total_properties">Total Properties</string>
+    <string name="pending_requests">Pending Requests</string>
+    <string name="views">Views</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="add_property">Add Property</string>
+    <string name="manage_properties">Manage Properties</string>
+    <string name="chats">Chats</string>
+    <string name="help_support"><![CDATA[Help & Support]]></string>
+    <string name="tenant">Tenant</string>
+    <string name="owner">Owner</string>
+    <string name="upload_images_videos"><![CDATA[Upload Images & Videos]]></string>
+
+
+</resources>

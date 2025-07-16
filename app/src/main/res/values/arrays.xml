@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="room_types">
+        <item>Single Room</item>
+        <item>Shared Room</item>
+        <item>Flat/Apartment</item>
+        <item>Hostel</item>
+    </string-array>
+</resources>

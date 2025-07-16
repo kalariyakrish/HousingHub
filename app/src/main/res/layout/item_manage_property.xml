@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_background"
+    android:layout_marginBottom="12dp"
+    android:elevation="2dp">
+
+    <TextView
+        android:id="@+id/tvPropertyTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Room Title"
+        android:textStyle="bold"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvPropertyLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Location"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvPropertyPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="₹4500"
+        android:textSize="14sp"
+        android:textColor="#4CAF50" />
+
+    <Button
+        android:id="@+id/btnManageProperty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Manage"
+        android:layout_marginTop="8dp" />
+</LinearLayout>
