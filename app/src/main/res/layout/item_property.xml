@@ -100,4 +100,25 @@
         android:textStyle="bold"
         android:textColor="#1E88E5"
         android:layout_marginBottom="4dp" />
+
+    <!-- Owner Information -->
+    <TextView
+        android:id="@+id/ownerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Owner: Not specified"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp" />
+
+    <!-- Availability Status -->
+    <TextView
+        android:id="@+id/availabilityText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Available"
+        android:textColor="#4CAF50"
+        android:textSize="14sp"
+        android:layout_marginTop="2dp" />
+
 </LinearLayout>

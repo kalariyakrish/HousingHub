@@ -12,6 +12,7 @@ import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
 import com.example.housinghub.databinding.ActivityOwnerAddPropertyBinding
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
 
@@ -152,24 +153,45 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
     }
 
     private fun savePropertyToFirestore(images: List<String>, agreementUrl: String?) {
+        val auth = FirebaseAuth.getInstance()
+        val ownerEmail = auth.currentUser?.email ?: return
+
         val property = hashMapOf(
+            "id" to UUID.randomUUID().toString(),
             "title" to binding.etTitle.text.toString(),
             "location" to binding.etLocation.text.toString(),
             "price" to binding.etPrice.text.toString(),
             "description" to binding.etDescription.text.toString(),
+            "ownerId" to auth.currentUser?.uid,
+            "ownerEmail" to ownerEmail,
             "images" to images,
             "agreementUrl" to agreementUrl,
-            "timestamp" to System.currentTimeMillis()
+            "timestamp" to System.currentTimeMillis(),
+            "isAvailable" to true
         )
 
-        firestore.collection("properties")
-            .add(property)
+        // Save to Firestore using the new structure:
+        // Properties -> ownerEmail -> Available -> propertyId -> propertyData
+        firestore.collection("Properties")
+            .document(ownerEmail)
+            .set(mapOf("exists" to true)) // Add a dummy field to make the document exist
             .addOnSuccessListener {
-                showToast("Property uploaded successfully")
-                finish()
+                // Now add the property to the Available collection
+                firestore.collection("Properties")
+                    .document(ownerEmail)
+                    .collection("Available")
+                    .document(property["id"] as String)
+                    .set(property)
+                    .addOnSuccessListener {
+                        showToast("Property added successfully")
+                        finish()
+                    }
+                    .addOnFailureListener { e ->
+                        showToast("Error adding property: ${e.message}")
+                    }
             }
-            .addOnFailureListener {
-                showToast("Error saving property to Firestore")
+            .addOnFailureListener { e ->
+                showToast("Error initializing owner document: ${e.message}")
             }
     }
 

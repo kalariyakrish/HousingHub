@@ -6,9 +6,10 @@ data class Property(
     val location: String = "",
     val price: String = "",
     val description: String = "",
-    val ownerId: String = "",
+    var ownerId: String = "",
     val images: List<String> = emptyList(),
     val agreementUrl: String = "",
     val timestamp: Long = 0L,
-    var isBookmarked: Boolean = false
+    var isBookmarked: Boolean = false,
+    val isAvailable: Boolean = true
 )

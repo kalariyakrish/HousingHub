@@ -4,9 +4,10 @@ data class Property(
     val id: String = "",
     val title: String = "",
     val location: String = "",
-    val price: Int = 0,
+    val price: String = "",
     val description: String = "",
     val images: List<String>? = null,
     val agreementUrl: String? = null,
-    var isBookmarked: Boolean = false
+    var isBookmarked: Boolean = false,
+    var isAvailable: Boolean = true
 )

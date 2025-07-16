@@ -59,15 +59,49 @@ class SearchFragment : Fragment(), BookmarkClickListener {
     }
 
     private fun fetchPropertiesFromFirestore() {
-        firestore.collection("properties")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
+        // Get all documents from Properties collection (these are owner emails)
+        firestore.collection("Properties")
             .get()
-            .addOnSuccessListener { result ->
-                allProperties = result.mapNotNull { it.toObject(Property::class.java) }.toMutableList()
-                propertyAdapter.updateData(allProperties)
+            .addOnSuccessListener { ownerDocs ->
+                val fetchedProperties = mutableListOf<Property>()
+                var completedQueries = 0
+                val totalQueries = ownerDocs.size() * 2 // 2 subcollections per owner
+
+                // For each owner, fetch both Available and Unavailable properties
+                ownerDocs.forEach { ownerDoc ->
+                    val ownerEmail = ownerDoc.id
+                    
+                    // Fetch Available properties
+                    firestore.collection("Properties")
+                        .document(ownerEmail)
+                        .collection("Available")
+                        .get()
+                        .addOnSuccessListener { availableProps ->
+                            fetchedProperties.addAll(availableProps.mapNotNull { it.toObject(Property::class.java) })
+                            completedQueries++
+                            if (completedQueries == totalQueries) {
+                                allProperties = fetchedProperties.sortedByDescending { it.timestamp }.toMutableList()
+                                propertyAdapter.updateData(allProperties)
+                            }
+                        }
+
+                    // Fetch Unavailable properties
+                    firestore.collection("Properties")
+                        .document(ownerEmail)
+                        .collection("Unavailable")
+                        .get()
+                        .addOnSuccessListener { unavailableProps ->
+                            fetchedProperties.addAll(unavailableProps.mapNotNull { it.toObject(Property::class.java) })
+                            completedQueries++
+                            if (completedQueries == totalQueries) {
+                                allProperties = fetchedProperties.sortedByDescending { it.timestamp }.toMutableList()
+                                propertyAdapter.updateData(allProperties)
+                            }
+                        }
+                }
             }
-            .addOnFailureListener {
-                // Show error if needed
+            .addOnFailureListener { e ->
+                // Handle error if needed
             }
     }
 

@@ -11,7 +11,6 @@ import com.example.housinghub.SharedViewModel.Viewmodel.SharedViewModel
 import com.example.housinghub.databinding.FragmentHomeBinding
 import com.example.housinghub.model.Property
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 
 class HomeFragment : Fragment(), BookmarkClickListener {
 
@@ -48,15 +47,55 @@ class HomeFragment : Fragment(), BookmarkClickListener {
     }
 
     private fun fetchProperties() {
-        firestore.collection("properties")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
+        // Get all properties from the Available collection under each owner
+        firestore.collection("Properties")
             .get()
-            .addOnSuccessListener { result ->
-                val properties = result.mapNotNull { it.toObject(Property::class.java) }
-                propertyAdapter.updateData(properties)
+            .addOnSuccessListener { ownerDocs ->
+                val allProperties = mutableListOf<Property>()
+                var completedQueries = 0
+                val totalQueries = ownerDocs.size()
+
+                if (totalQueries == 0) {
+                    // No owners found, update adapter with empty list
+                    propertyAdapter.updateData(emptyList())
+                    return@addOnSuccessListener
+                }
+
+                // For each owner, fetch only Available properties
+                ownerDocs.forEach { ownerDoc ->
+                    val ownerEmail = ownerDoc.id
+                    
+                    // Only fetch Available properties for tenant view
+                    firestore.collection("Properties")
+                        .document(ownerEmail)
+                        .collection("Available")
+                        .get()
+                        .addOnSuccessListener { availableProps ->
+                            val properties = availableProps.mapNotNull { 
+                                it.toObject(Property::class.java).apply {
+                                    this.ownerId = ownerEmail // Set the owner ID
+                            }
+                            }
+                            allProperties.addAll(properties)
+                            
+                            completedQueries++
+                            if (completedQueries == totalQueries) {
+                                // Sort by timestamp and update adapter
+                                propertyAdapter.updateData(allProperties.sortedByDescending { it.timestamp })
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            // Handle individual query failure
+                            completedQueries++
+                            if (completedQueries == totalQueries) {
+                                propertyAdapter.updateData(allProperties.sortedByDescending { it.timestamp })
+                            }
+                        }
+                }
             }
-            .addOnFailureListener {
-                // Handle errors (optional toast/log)
+            .addOnFailureListener { e ->
+                // Handle main query failure
+                propertyAdapter.updateData(emptyList())
             }
     }
 

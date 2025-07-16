@@ -4,9 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.housinghub.R.color.green_500
 import com.example.housinghub.SharedViewModel.Viewmodel.SharedViewModel
 import com.example.housinghub.databinding.ItemPropertyBinding
-import com.example.housinghub.model.Property
+import com.example.housinghub.model.Property // Updated import
 
 class PropertyAdapter(
     private val sharedViewModel: SharedViewModel? = null,
@@ -18,13 +19,24 @@ class PropertyAdapter(
     inner class PropertyViewHolder(private val binding: ItemPropertyBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(property: Property, position: Int) {
+        fun bind(property: Property) {
             binding.titleText.text = property.title
             binding.locationText.text = property.location
             binding.priceText.text = "₹${property.price}/month"
 
-            // Load image (Cloudinary URL or fallback)
-            if (!property.images.isNullOrEmpty()) {
+            // Show owner information if available
+            binding.ownerText.text = "Owner: ${if (property.ownerId.isNotEmpty()) property.ownerId else "Not specified"}"
+
+            // Show availability status
+            binding.availabilityText.text = if (property.isAvailable) "Available" else "Not Available"
+            binding.availabilityText.setTextColor(
+                binding.root.context.getColor(
+                    if (property.isAvailable) green_500 else R.color.red_500
+                )
+            )
+
+            // Load first image if available
+            if (property.images.isNotEmpty()) {
                 Glide.with(binding.propertyImage.context)
                     .load(property.images[0])
                     .placeholder(R.drawable.placeholder_image)
@@ -33,14 +45,12 @@ class PropertyAdapter(
                 binding.propertyImage.setImageResource(R.drawable.placeholder_image)
             }
 
-            // Bookmark logic
+            // Handle bookmarks
             if (sharedViewModel != null && bookmarkClickListener != null) {
-                val iconRes = if (property.isBookmarked)
-                    R.drawable.ic_bookmark_filled
-                else
-                    R.drawable.ic_bookmark_border
-
-                binding.bookmarkIcon.setImageResource(iconRes)
+                binding.bookmarkIcon.setImageResource(
+                    if (property.isBookmarked) R.drawable.ic_bookmark_filled
+                    else R.drawable.ic_bookmark_border
+                )
 
                 binding.bookmarkIcon.setOnClickListener {
                     property.isBookmarked = !property.isBookmarked
@@ -61,7 +71,7 @@ class PropertyAdapter(
     }
 
     override fun onBindViewHolder(holder: PropertyViewHolder, position: Int) {
-        holder.bind(properties[position], position)
+        holder.bind(properties[position])
     }
 
     override fun getItemCount(): Int = properties.size

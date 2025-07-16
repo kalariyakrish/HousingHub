@@ -9,9 +9,8 @@
     <color name="primary_green">#00C853</color>
     <color name="teal_700">#018786</color>
     <color name="primary">#6200EE</color>
-
-
-
+    <color name="green_500">#4CAF50</color>
+    <color name="red_500">#F44336</color>
 
     <color name="nav_selected">#1E88E5</color>     <!-- Blue color for selected item -->
     <color name="nav_unselected">#808080</color>   <!-- Gray color for unselected items -->
