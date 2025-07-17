@@ -24,6 +24,16 @@
             android:layout_gravity="center"
             android:src="@drawable/ic_play"
             app:tint="@android:color/white" />
+            
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="4dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="@android:color/white" />
 
     </FrameLayout>
 

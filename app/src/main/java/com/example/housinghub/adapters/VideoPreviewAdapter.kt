@@ -2,56 +2,75 @@ package com.example.housinghub.adapters
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.housinghub.R
+import com.example.housinghub.databinding.ItemVideoPreviewBinding
+import kotlinx.coroutines.*
 
 class VideoPreviewAdapter(
     private val context: Context,
-    private val onVideoClick: (Int) -> Unit
-) : ListAdapter<Uri, VideoPreviewAdapter.VideoViewHolder>(VideoDiffCallback()) {
+    private val onVideoClick: (Int) -> Unit,
+    private val onDeleteClick: (Int) -> Unit
+) : RecyclerView.Adapter<VideoPreviewAdapter.VideoViewHolder>() {
+
+    private val videos = mutableListOf<Uri>()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    inner class VideoViewHolder(private val binding: ItemVideoPreviewBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var thumbnailJob: Job? = null
+
+        fun bind(videoUri: Uri, position: Int) {
+            // Cancel previous job if exists
+            thumbnailJob?.cancel()
+            
+            // Use Glide to load video thumbnail directly
+            thumbnailJob = coroutineScope.launch {
+                try {
+                    // Load the video thumbnail using Glide
+                    Glide.with(context)
+                        .load(videoUri)
+                        .centerCrop()
+                        .into(binding.ivVideoThumbnail)
+                } catch (e: Exception) {
+                    Log.e("VideoPreviewAdapter", "Error loading thumbnail: ${e.message}")
+                }
+            }
+
+            // Set click listeners for the video item and delete button
+            binding.ivVideoThumbnail.setOnClickListener { onVideoClick(position) }
+            binding.ivPlayButton.setOnClickListener { onVideoClick(position) }
+            binding.btnDelete.setOnClickListener { onDeleteClick(position) }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_video_preview, parent, false)
-        return VideoViewHolder(view)
+        val binding = ItemVideoPreviewBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return VideoViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
-        val videoUri = getItem(position)
-        holder.bind(videoUri)
-        holder.itemView.setOnClickListener { onVideoClick(position) }
-    }
-
-    inner class VideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val thumbnailView: ImageView = itemView.findViewById(R.id.ivVideoThumbnail)
-        private val playButton: ImageView = itemView.findViewById(R.id.ivPlayButton)
-
-        fun bind(videoUri: Uri) {
-            // Load video thumbnail using Glide
-            Glide.with(context)
-                .load(videoUri)
-                .thumbnail(0.1f)
-                .centerCrop()
-                .into(thumbnailView)
-
-            playButton.visibility = View.VISIBLE
+        if (position < videos.size) {
+            holder.bind(videos[position], position)
         }
     }
 
-    private class VideoDiffCallback : DiffUtil.ItemCallback<Uri>() {
-        override fun areItemsTheSame(oldItem: Uri, newItem: Uri): Boolean {
-            return oldItem == newItem
-        }
+    override fun getItemCount(): Int = videos.size
 
-        override fun areContentsTheSame(oldItem: Uri, newItem: Uri): Boolean {
-            return oldItem == newItem
-        }
+    fun submitList(newVideos: List<Uri>) {
+        videos.clear()
+        videos.addAll(newVideos)
+        notifyDataSetChanged()
+    }
+    
+    fun onDestroy() {
+        coroutineScope.cancel()
     }
 }

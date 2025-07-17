@@ -1,51 +1,50 @@
 package com.example.housinghub.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.housinghub.R
+import com.example.housinghub.databinding.ItemImagePreviewBinding
 
 class ImageSliderAdapter(
-    private val onImageClick: ((Int) -> Unit)? = null
-) : RecyclerView.Adapter<ImageSliderAdapter.SliderViewHolder>() {
+    private val onImageClick: (Int) -> Unit,
+    private val onDeleteClick: (Int) -> Unit
+) : RecyclerView.Adapter<ImageSliderAdapter.ImageViewHolder>() {
 
-    private var imageUrls: List<String> = listOf()
+    private val images = mutableListOf<String>()
 
-    inner class SliderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.sliderImage)
+    inner class ImageViewHolder(private val binding: ItemImagePreviewBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        init {
-            imageView.setOnClickListener {
-                onImageClick?.invoke(adapterPosition)
-            }
+        fun bind(imageUri: String, position: Int) {
+            Glide.with(binding.root.context)
+                .load(imageUri)
+                .centerCrop()
+                .into(binding.imageView)
+
+            binding.root.setOnClickListener { onImageClick(position) }
+            binding.btnDelete.setOnClickListener { onDeleteClick(position) }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SliderViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.slider_image, parent, false)
-        return SliderViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+        val binding = ItemImagePreviewBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ImageViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: SliderViewHolder, position: Int) {
-        val imageUrl = imageUrls[position]
-        
-        // Load image using Glide
-        Glide.with(holder.itemView.context)
-            .load(imageUrl)
-            .placeholder(R.drawable.image_placeholder_bg)
-            .error(R.drawable.image_placeholder_bg)
-            .centerCrop()
-            .into(holder.imageView)
+    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+        holder.bind(images[position], position)
     }
 
-    override fun getItemCount(): Int = imageUrls.size
+    override fun getItemCount(): Int = images.size
 
-    fun submitList(newImages: List<String>) {
-        imageUrls = newImages
+    fun submitList(list: List<String>) {
+        images.clear()
+        images.addAll(list)
         notifyDataSetChanged()
     }
 }

@@ -3,7 +3,6 @@ package com.example.housinghub
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.example.housinghub.adapters.ImageSliderAdapter
 import com.example.housinghub.databinding.ActivityImageViewerBinding
 
 class ImageViewerActivity : AppCompatActivity() {
@@ -22,7 +21,10 @@ class ImageViewerActivity : AppCompatActivity() {
     }
 
     private fun setupImageViewer(images: ArrayList<String>, initialPosition: Int) {
-        val adapter = ImageSliderAdapter { /* Optional click handling */ }
+        val adapter = ImageSliderAdapter(
+            onImageClick = { /* Optional click handling */ },
+            onDeleteClick = { /* Optional delete handling */ }
+        )
         binding.viewPager.apply {
             this.adapter = adapter
             orientation = ViewPager2.ORIENTATION_HORIZONTAL

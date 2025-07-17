@@ -6,11 +6,26 @@
     app:cardCornerRadius="8dp"
     app:cardElevation="0dp">
 
-    <ImageView
-        android:id="@+id/sliderImage"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:contentDescription="Property Image" />
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/sliderImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="Property Image" />
+
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="4dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="@android:color/white" />
+    </FrameLayout>
 
 </androidx.cardview.widget.CardView>

@@ -4,19 +4,33 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class ImageSliderAdapter(private val images: List<Uri>) : 
+class ImageSliderAdapter(private val images: MutableList<Uri> = mutableListOf(),
+                        private val onImageClick: (Uri) -> Unit = {},
+                        private val onDeleteClick: (Int) -> Unit = {}) : 
     RecyclerView.Adapter<ImageSliderAdapter.ImageViewHolder>() {
 
     inner class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.sliderImage)
+        val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
 
         init {
             imageView.setOnClickListener {
-                showFullscreenImage(images[adapterPosition])
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onImageClick(images[position])
+                }
+            }
+            
+            btnDelete.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onDeleteClick(position)
+                }
             }
         }
     }
@@ -36,8 +50,29 @@ class ImageSliderAdapter(private val images: List<Uri>) :
 
     override fun getItemCount(): Int = images.size
 
-    private fun showFullscreenImage(imageUri: Uri) {
-        // Implement fullscreen image viewer
-        // You can use a DialogFragment or start a new Activity
+    fun submitList(newList: List<String>) {
+        val oldSize = images.size
+        images.clear()
+        // Convert each string to Uri before adding to the images list
+        val uriList = newList.map { Uri.parse(it) }
+        images.addAll(uriList)
+        
+        // Use more specific change events as recommended
+        if (oldSize == 0 && uriList.isNotEmpty()) {
+            notifyItemRangeInserted(0, uriList.size)
+        } else if (uriList.isEmpty() && oldSize > 0) {
+            notifyItemRangeRemoved(0, oldSize)
+        } else if (uriList.size != oldSize) {
+            // Different sizes, use specific notifications
+            if (oldSize > 0) {
+                notifyItemRangeRemoved(0, oldSize)
+            }
+            if (uriList.isNotEmpty()) {
+                notifyItemRangeInserted(0, uriList.size)
+            }
+        } else {
+            // Same size but potentially different content
+            notifyItemRangeChanged(0, uriList.size)
+        }
     }
 }
