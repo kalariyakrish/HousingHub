@@ -1,4 +1,4 @@
-package com.example.housinghub.owner
+package com.example.housinghub
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

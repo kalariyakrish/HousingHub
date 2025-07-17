@@ -1,11 +1,10 @@
-package com.example.housinghub
+package com.example.housinghub.owner
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.housinghub.databinding.ActivityOwnerManagePropertyBinding
 import com.example.housinghub.model.Property
-import com.example.housinghub.owner.ManagePropertyAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -44,16 +43,13 @@ class OwnerManagePropertyActivity : AppCompatActivity() {
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    // Handle error
                     return@addSnapshotListener
                 }
 
                 val properties = snapshot?.documents?.mapNotNull { doc ->
-                    val property = doc.toObject(Property::class.java)
-                    property?.id = doc.id // Make sure to set the document ID
-                    property
+                    doc.toObject(Property::class.java)
                 } ?: listOf()
-
+                
                 adapter.updateData(properties)
             }
     }
@@ -62,11 +58,5 @@ class OwnerManagePropertyActivity : AppCompatActivity() {
         db.collection("Properties")
             .document(propertyId)
             .update("isAvailable", isAvailable)
-            .addOnSuccessListener {
-                // Property availability updated successfully
-            }
-            .addOnFailureListener { e ->
-                // Handle the error
-            }
     }
 }

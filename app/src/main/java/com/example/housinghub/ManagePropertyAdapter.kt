@@ -1,4 +1,4 @@
-package com.example.housinghub.owner
+package com.example.housinghub
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +7,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.housinghub.R
-import com.example.housinghub.R.id.btnToggleAvailability
 import com.example.housinghub.model.Property
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -24,7 +24,7 @@ class ManagePropertyAdapter(
         val title: TextView = itemView.findViewById(R.id.tvPropertyTitle)
         val location: TextView = itemView.findViewById(R.id.tvPropertyLocation)
         val price: TextView = itemView.findViewById(R.id.tvPropertyPrice)
-        val availabilityButton: Button = itemView.findViewById(btnToggleAvailability)
+        val availabilityButton: Button = itemView.findViewById(R.id.btnToggleAvailability)
         val manageButton: Button = itemView.findViewById(R.id.btnManageProperty)
 
         fun bind(property: Property) {

@@ -21,7 +21,7 @@
 
         <activity android:name=".owner.OwnerManagePropertyActivity" />
         <activity android:name=".owner.OwnerChatActivity" />
-        <activity android:name=".owner.OwnerHomePageActivity" />
+        <activity android:name=".OwnerHomePageActivity" />
         <activity android:name=".owner.AccountSecurityActivity" />
         <activity android:name=".owner.NotificationsActivity" />
         <activity android:name=".owner.PrivacyActivity" />

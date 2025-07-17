@@ -1,7 +1,7 @@
 package com.example.housinghub.model
 
 data class Property(
-    val id: String = "",
+    var id: String = "",
     val title: String = "",
     val location: String = "",
     val price: String = "",

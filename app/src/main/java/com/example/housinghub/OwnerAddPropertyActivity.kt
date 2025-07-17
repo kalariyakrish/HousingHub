@@ -154,44 +154,31 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
 
     private fun savePropertyToFirestore(images: List<String>, agreementUrl: String?) {
         val auth = FirebaseAuth.getInstance()
-        val ownerEmail = auth.currentUser?.email ?: return
+        val currentUser = auth.currentUser ?: return
 
+        val propertyId = UUID.randomUUID().toString()
         val property = hashMapOf(
-            "id" to UUID.randomUUID().toString(),
+            "id" to propertyId,
             "title" to binding.etTitle.text.toString(),
             "location" to binding.etLocation.text.toString(),
-            "price" to binding.etPrice.text.toString(),
-            "description" to binding.etDescription.text.toString(),
-            "ownerId" to auth.currentUser?.uid,
-            "ownerEmail" to ownerEmail,
+            ("price" to binding.etPrice.text.toString().toIntOrNull() ?: 0) as Pair<Any, Any>,
             "images" to images,
-            "agreementUrl" to agreementUrl,
-            "timestamp" to System.currentTimeMillis(),
-            "isAvailable" to true
+            "ownerId" to currentUser.email,
+            "isAvailable" to true,
+            "agreement" to (agreementUrl ?: ""),
+            "createdAt" to System.currentTimeMillis()
         )
 
-        // Save to Firestore using the new structure:
-        // Properties -> ownerEmail -> Available -> propertyId -> propertyData
-        firestore.collection("Properties")
-            .document(ownerEmail)
-            .set(mapOf("exists" to true)) // Add a dummy field to make the document exist
+        FirebaseFirestore.getInstance()
+            .collection("Properties") // Using capital P as requested
+            .document(propertyId)
+            .set(property)
             .addOnSuccessListener {
-                // Now add the property to the Available collection
-                firestore.collection("Properties")
-                    .document(ownerEmail)
-                    .collection("Available")
-                    .document(property["id"] as String)
-                    .set(property)
-                    .addOnSuccessListener {
-                        showToast("Property added successfully")
-                        finish()
-                    }
-                    .addOnFailureListener { e ->
-                        showToast("Error adding property: ${e.message}")
-                    }
+                showToast("Property added successfully")
+                finish()
             }
             .addOnFailureListener { e ->
-                showToast("Error initializing owner document: ${e.message}")
+                showToast("Error: ${e.message}")
             }
     }
 

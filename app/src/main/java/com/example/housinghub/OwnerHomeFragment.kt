@@ -5,25 +5,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.example.housinghub.databinding.FragmentOwnerHomeBinding
 import com.example.housinghub.OwnerAddPropertyActivity
+import com.example.housinghub.databinding.FragmentOwnerHomeBinding
 import com.example.housinghub.owner.OwnerChatActivity
 import com.example.housinghub.owner.OwnerManagePropertyActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class OwnerHomeFragment : Fragment() {
 
     private var _binding: FragmentOwnerHomeBinding? = null
     private val binding get() = _binding!!
-    private lateinit var tvTotalProperties: TextView
-    private lateinit var tvPendingRequests: TextView
-    private lateinit var tvViews: TextView
-    private lateinit var btnManageProperty: Button
-    private lateinit var btnChats: Button
-    private lateinit var ivNotification: ImageView
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,38 +30,86 @@ class OwnerHomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        // Get current user and fetch their name
+        fetchUserNameAndUpdateUI()
 
-        // Initialize views
-        tvTotalProperties = binding.tvTotalProperties
-        tvPendingRequests = binding.tvPendingRequests
-        tvViews = binding.tvViews
-        btnManageProperty = binding.btnManageProperty
-        btnChats = binding.btnChats
-        ivNotification = binding.ivNotification
+        setupClickListeners()
+        loadStatistics()
+    }
 
-        binding.tvGreeting.text = "Welcome, Krish 👋"
-        tvTotalProperties.text = "12"
-        tvPendingRequests.text = "3"
-        tvViews.text = "245"
+    private fun fetchUserNameAndUpdateUI() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            // First try to get from Firestore owners collection
+            db.collection("owners")
+                .document(currentUser.email ?: "")
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        val name = document.getString("name") ?: document.getString("fullName")
+                        if (!name.isNullOrEmpty()) {
+                            binding.tvGreeting.text = "Welcome, $name 👋"
+                        } else {
+                            // Fallback to display email if name is not found
+                            val displayName = currentUser.displayName ?: currentUser.email?.substringBefore("@")
+                            binding.tvGreeting.text = "Welcome, $displayName 👋"
+                        }
+                    } else {
+                        // If document doesn't exist, use Firebase Auth display name or email
+                        val displayName = currentUser.displayName ?: currentUser.email?.substringBefore("@")
+                        binding.tvGreeting.text = "Welcome, $displayName 👋"
+                    }
+                }
+                .addOnFailureListener {
+                    // In case of any error, use Firebase Auth display name or email
+                    val displayName = currentUser.displayName ?: currentUser.email?.substringBefore("@")
+                    binding.tvGreeting.text = "Welcome, $displayName 👋"
+                }
+        }
+    }
 
+    private fun setupClickListeners() {
         binding.btnAddProperty.setOnClickListener {
-            val intent = Intent(requireContext(), OwnerAddPropertyActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), OwnerAddPropertyActivity::class.java))
         }
 
-        btnManageProperty.setOnClickListener {
-            val intent = Intent(requireContext(), OwnerManagePropertyActivity::class.java)
-            startActivity(intent)
+        binding.btnManageProperty.setOnClickListener {
+            startActivity(Intent(requireContext(), OwnerManagePropertyActivity::class.java))
         }
 
-        btnChats.setOnClickListener {
-            val intent = Intent(requireContext(), OwnerChatActivity::class.java)
-            startActivity(intent)
+        binding.btnChats.setOnClickListener {
+            startActivity(Intent(requireContext(), OwnerChatActivity::class.java))
         }
+    }
 
-        ivNotification.setOnClickListener {
-            // Optional: Implement notification logic here
-        }
+    private fun loadStatistics() {
+        val currentUser = auth.currentUser?.email ?: return
+
+        // Get total properties count
+        db.collection("Properties")
+            .whereEqualTo("ownerId", currentUser)
+            .get()
+            .addOnSuccessListener { result ->
+                binding.tvTotalProperties.text = result.size().toString()
+            }
+
+        // Get pending requests count
+        db.collection("requests")
+            .whereEqualTo("ownerId", currentUser)
+            .whereEqualTo("status", "pending")
+            .get()
+            .addOnSuccessListener { result ->
+                binding.tvPendingRequests.text = result.size().toString()
+            }
+
+        // Get total views
+        db.collection("propertyViews")
+            .whereEqualTo("ownerId", currentUser)
+            .get()
+            .addOnSuccessListener { result ->
+                binding.tvViews.text = result.size().toString()
+            }
     }
 
     override fun onDestroyView() {
