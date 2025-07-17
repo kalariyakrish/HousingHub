@@ -108,5 +108,19 @@
     <string name="owner">Owner</string>
     <string name="upload_images_videos"><![CDATA[Upload Images & Videos]]></string>
 
+    <!-- Property Addition -->
+    <string name="error">Error</string>
+    <string name="ok">OK</string>
+    <string name="error_not_logged_in">You must be logged in to add a property</string>
+    <string name="error_adding_property">Failed to add property</string>
+    <string name="adding_property">Adding Property</string>
+    <string name="please_wait">Please wait while we upload your property...</string>
+    <string name="success">Success</string>
+    <string name="property_added_success">Property added successfully!</string>
+    <string name="tvNoPhotos">No photos added yet</string>
+    <string name="tvNoVideos">No videos added yet</string>
+    <string name="tvPhotoCount">%d photos selected</string>
+    <string name="tvVideoCount">%d videos selected</string>
+    <string name="tvLocationStatus">Location not selected</string>
 
 </resources>

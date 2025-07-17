@@ -1,32 +1,72 @@
 package com.example.housinghub
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.cloudinary.android.MediaManager
-import com.cloudinary.android.callback.ErrorInfo
-import com.cloudinary.android.callback.UploadCallback
+import com.example.housinghub.adapters.ImageSliderAdapter
+import com.example.housinghub.adapters.VideoPreviewAdapter
 import com.example.housinghub.databinding.ActivityOwnerAddPropertyBinding
+import com.example.housinghub.owner.MapLocationPickerActivity
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 
 class OwnerAddPropertyActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityOwnerAddPropertyBinding
-    private val firestore = FirebaseFirestore.getInstance()
+    private var currentStep = 1
+    private val totalSteps = 5
+    private val selectedImages = mutableListOf<Uri>()
+    private val selectedVideos = mutableListOf<Uri>()
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var map: GoogleMap? = null
+    private var currentLocation: LatLng? = null
+    private lateinit var imageSliderAdapter: ImageSliderAdapter
+    private lateinit var videoPreviewAdapter: VideoPreviewAdapter
+    private val storage = FirebaseStorage.getInstance()
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    private val selectedImageUris = mutableListOf<Uri>()
-    private var agreementUri: Uri? = null
+    private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri>? ->
+        uris?.let { 
+            selectedImages.addAll(it)
+            updateImagePreview()
+        }
+    }
 
-    companion object {
-        private const val PICK_IMAGES_CODE = 1001
-        private const val PICK_AGREEMENT_CODE = 1002
+    private val videoPickerLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri>? ->
+        uris?.let {
+            selectedVideos.addAll(it)
+            updateVideoPreview()
+        }
+    }
+
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            permissions[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true -> {
+                // Permission granted, get current location
+                getCurrentLocation()
+            }
+            else -> {
+                showErrorDialog("Location permission is required to get current location")
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,181 +74,400 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
         binding = ActivityOwnerAddPropertyBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initCloudinary()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        setupUI()
+        setupMap()
+    }
 
-        binding.btnUploadImages.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "image/*"
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            }
-            startActivityForResult(Intent.createChooser(intent, "Select Images"), PICK_IMAGES_CODE)
-        }
-
-        binding.btnUploadAgreement.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "*/*"
-            }
-            startActivityForResult(Intent.createChooser(intent, "Select Rent Agreement"), PICK_AGREEMENT_CODE)
-        }
-
-        binding.btnSubmit.setOnClickListener {
-            if (validateInputs()) {
-                uploadImagesToCloudinary()
+    private fun setupMap() {
+        // Initialize map fragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as? SupportMapFragment
+        mapFragment?.getMapAsync { googleMap ->
+            map = googleMap
+            // Set default location or last selected location
+            currentLocation?.let { location ->
+                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
             }
         }
     }
 
-    private fun initCloudinary() {
-        try {
-            MediaManager.get()
-        } catch (e: Exception) {
-            val config = hashMapOf(
-                "cloud_name" to "dp82wqtwj", // ✅ Replace with your actual Cloudinary cloud name
-                "upload_preset" to "HousingHub", // ✅ Replace with your unsigned preset name
-                "timeout" to 60000,
-                "connect_timeout" to 60000,
-                "read_timeout" to 60000
-            )
-            MediaManager.init(this, config)
+    private fun setupUI() {
+        // Initialize ViewFlipper
+        binding.viewFlipper.displayedChild = 0
+
+        // Setup RecyclerViews
+        setupImageRecyclerView()
+        setupVideoRecyclerView()
+
+        // Update progress and step indicator
+        updateProgress()
+
+        // Setup click listeners
+        setupClickListeners()
+    }
+
+    private fun setupImageRecyclerView() {
+        imageSliderAdapter = ImageSliderAdapter { position ->
+            showFullScreenImage(position)
+        }
+        binding.rvPhotos.apply {
+            layoutManager = GridLayoutManager(this@OwnerAddPropertyActivity, 3)
+            adapter = imageSliderAdapter
         }
     }
 
-    private fun validateInputs(): Boolean {
-        return when {
-            binding.etTitle.text.isNullOrBlank() -> {
-                showToast("Enter Title"); false
-            }
-            binding.etLocation.text.isNullOrBlank() -> {
-                showToast("Enter Location"); false
-            }
-            binding.etPrice.text.isNullOrBlank() -> {
-                showToast("Enter Price"); false
-            }
-            binding.etDescription.text.isNullOrBlank() -> {
-                showToast("Enter Description"); false
-            }
-            selectedImageUris.isEmpty() -> {
-                showToast("Select at least one image"); false
-            }
-            agreementUri == null -> {
-                showToast("Upload rent agreement"); false
-            }
-            else -> true
+    private fun setupVideoRecyclerView() {
+        videoPreviewAdapter = VideoPreviewAdapter(this) { position ->
+            playVideo(position)
+        }
+        binding.rvVideos.apply {
+            layoutManager = LinearLayoutManager(this@OwnerAddPropertyActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = videoPreviewAdapter
         }
     }
 
-    private fun uploadImagesToCloudinary() {
-        val imageUrls = mutableListOf<String>()
-        var uploadedCount = 0
-
-        selectedImageUris.forEach { uri ->
-            val requestId = UUID.randomUUID().toString()
-            MediaManager.get().upload(uri)
-                .option("public_id", "property_images/$requestId")
-                .unsigned("HousingHub") // ✅ Must match unsigned preset
-                .callback(object : UploadCallback {
-                    override fun onStart(requestId: String?) {}
-                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
-
-                    override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
-                        val url = resultData?.get("secure_url") as? String
-                        url?.let { imageUrls.add(it) }
-                        uploadedCount++
-                        if (uploadedCount == selectedImageUris.size) {
-                            uploadAgreementToCloudinary(imageUrls)
-                        }
-                    }
-
-                    override fun onError(requestId: String?, error: ErrorInfo?) {
-                        Log.e("Cloudinary", "Upload Error: ${error?.description}")
-                        showToast("Image upload failed: ${error?.description}")
-                    }
-
-                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
-                }).dispatch()
-        }
-    }
-
-    private fun uploadAgreementToCloudinary(imageUrls: List<String>) {
-        val agreementId = UUID.randomUUID().toString()
-        MediaManager.get().upload(agreementUri)
-            .option("public_id", "rent_agreements/$agreementId")
-            .unsigned("HousingHub") // ✅ Required for unsigned preset
-            .callback(object : UploadCallback {
-                override fun onStart(requestId: String?) {}
-                override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
-
-                override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
-                    val agreementUrl = resultData?.get("secure_url") as? String
-                    savePropertyToFirestore(imageUrls, agreementUrl)
+    private fun setupClickListeners() {
+        binding.btnNext.setOnClickListener {
+            if (validateCurrentStep()) {
+                if (currentStep < totalSteps) {
+                    currentStep++
+                    binding.viewFlipper.showNext()
+                    updateProgress()
+                } else {
+                    submitProperty()
                 }
+            }
+        }
 
-                override fun onError(requestId: String?, error: ErrorInfo?) {
-                    Log.e("Cloudinary", "Agreement Upload Error: ${error?.description}")
-                    showToast("Agreement upload failed: ${error?.description}")
-                }
+        binding.btnPrevious.setOnClickListener {
+            if (currentStep > 1) {
+                currentStep--
+                binding.viewFlipper.showPrevious()
+                updateProgress()
+            }
+        }
 
-                override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
-            }).dispatch()
+        binding.btnAddPhotos.setOnClickListener {
+            imagePickerLauncher.launch("image/*")
+        }
+
+        binding.btnAddVideos.setOnClickListener {
+            videoPickerLauncher.launch("video/*")
+        }
+
+        binding.btnCurrentLocation.setOnClickListener {
+            checkLocationPermission()
+        }
+
+        binding.btnPickLocation.setOnClickListener {
+            startMapPicker()
+        }
+
+        binding.btnBack.setOnClickListener {
+            finish()
+        }
     }
 
-    private fun savePropertyToFirestore(images: List<String>, agreementUrl: String?) {
-        val auth = FirebaseAuth.getInstance()
-        val currentUser = auth.currentUser ?: return
+    private fun validateCurrentStep(): Boolean {
+        return when (currentStep) {
+            1 -> {
+                // Basic Info Validation
+                when {
+                    binding.etPropertyTitle.text.isNullOrBlank() -> {
+                        showErrorDialog("Please enter property title")
+                        false
+                    }
+                    binding.etPropertyType.text.isNullOrBlank() -> {
+                        showErrorDialog("Please enter property type")
+                        false
+                    }
+                    binding.etPrice.text.isNullOrBlank() -> {
+                        showErrorDialog("Please enter property price")
+                        false
+                    }
+                    else -> true
+                }
+            }
+            2 -> {
+                // Location Validation
+                when {
+                    binding.etAddress.text.isNullOrBlank() -> {
+                        showErrorDialog("Please enter property address")
+                        false
+                    }
+                    currentLocation == null -> {
+                        showErrorDialog("Please select property location")
+                        false
+                    }
+                    else -> true
+                }
+            }
+            3 -> {
+                // Details Validation
+                when {
+                    binding.etBedrooms.text.isNullOrBlank() -> {
+                        showErrorDialog("Please enter number of bedrooms")
+                        false
+                    }
+                    binding.etBathrooms.text.isNullOrBlank() -> {
+                        showErrorDialog("Please enter number of bathrooms")
+                        false
+                    }
+                    binding.etDescription.text.isNullOrBlank() -> {
+                        showErrorDialog("Please enter property description")
+                        false
+                    }
+                    else -> true
+                }
+            }
+            4 -> {
+                // Media Validation
+                if (selectedImages.isEmpty()) {
+                    showErrorDialog("Please add at least one photo")
+                    false
+                } else true
+            }
+            5 -> {
+                // Final Review
+                true
+            }
+            else -> false
+        }
+    }
 
+    private fun updateImagePreview() {
+        imageSliderAdapter.submitList(selectedImages.map { it.toString() })
+        updatePreview()
+    }
+
+    private fun updateVideoPreview() {
+        videoPreviewAdapter.submitList(selectedVideos)
+        updatePreview()
+    }
+
+    private fun updatePreview() {
+        // Update image preview visibility
+        binding.rvPhotos.visibility = if (selectedImages.isEmpty()) View.GONE else View.VISIBLE
+        binding.tvNoPhotos.visibility = if (selectedImages.isEmpty()) View.VISIBLE else View.GONE
+        binding.tvPhotoCount.apply {
+            visibility = if (selectedImages.isEmpty()) View.GONE else View.VISIBLE
+            text = getString(R.string.tvPhotoCount, selectedImages.size)
+        }
+        
+        // Update video preview visibility
+        binding.rvVideos.visibility = if (selectedVideos.isEmpty()) View.GONE else View.VISIBLE
+        binding.tvNoVideos.visibility = if (selectedVideos.isEmpty()) View.VISIBLE else View.GONE
+        binding.tvVideoCount.apply {
+            visibility = if (selectedVideos.isEmpty()) View.GONE else View.VISIBLE
+            text = getString(R.string.tvVideoCount, selectedVideos.size)
+        }
+    }
+
+    private fun showFullScreenImage(position: Int) {
+        val intent = Intent(this, ImageViewerActivity::class.java).apply {
+            putStringArrayListExtra("images", ArrayList(selectedImages.map { it.toString() }))
+            putExtra("position", position)
+        }
+        startActivity(intent)
+    }
+
+    private fun playVideo(position: Int) {
+        val videoUri = selectedVideos[position]
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(videoUri, "video/*")
+        }
+        startActivity(intent)
+    }
+
+    private fun startMapPicker() {
+        val intent = Intent(this, MapLocationPickerActivity::class.java)
+        currentLocation?.let {
+            intent.putExtra("latitude", it.latitude)
+            intent.putExtra("longitude", it.longitude)
+        }
+        startActivityForResult(intent, MAP_PICKER_REQUEST)
+    }
+
+    private fun updateProgress() {
+        binding.progressIndicator.progress = (currentStep * 100) / totalSteps
+        binding.tvStepIndicator.text = "Step $currentStep/$totalSteps"
+        binding.btnNext.text = if (currentStep == totalSteps) "Submit" else "Next"
+        binding.btnPrevious.visibility = if (currentStep == 1) View.GONE else View.VISIBLE
+    }
+
+    private fun submitProperty() {
         val propertyId = UUID.randomUUID().toString()
-        val property = hashMapOf(
-            "id" to propertyId,
-            "title" to binding.etTitle.text.toString(),
-            "location" to binding.etLocation.text.toString(),
-            ("price" to binding.etPrice.text.toString().toIntOrNull() ?: 0) as Pair<Any, Any>,
-            "images" to images,
-            "ownerId" to currentUser.email,
-            "isAvailable" to true,
-            "agreement" to (agreementUrl ?: ""),
-            "createdAt" to System.currentTimeMillis()
-        )
+        val userId = auth.currentUser?.uid ?: run {
+            showErrorDialog(getString(R.string.error_not_logged_in))
+            return
+        }
 
-        FirebaseFirestore.getInstance()
-            .collection("Properties") // Using capital P as requested
-            .document(propertyId)
-            .set(property)
-            .addOnSuccessListener {
-                showToast("Property added successfully")
+        // Show loading dialog
+        val loadingDialog = showLoadingDialog()
+
+        // Upload media files first
+        uploadMediaFiles(propertyId) { mediaUrls ->
+            // Create property data
+            val propertyData = hashMapOf(
+                "id" to propertyId,
+                "ownerId" to userId,
+                "title" to binding.etPropertyTitle.text.toString(),
+                "type" to binding.etPropertyType.text.toString(),
+                "price" to (binding.etPrice.text.toString().toDoubleOrNull() ?: 0.0),
+                "address" to binding.etAddress.text.toString(),
+                "location" to hashMapOf(
+                    "latitude" to (currentLocation?.latitude ?: 0.0),
+                    "longitude" to (currentLocation?.longitude ?: 0.0)
+                ),
+                "bedrooms" to (binding.etBedrooms.text.toString().toIntOrNull() ?: 0),
+                "bathrooms" to (binding.etBathrooms.text.toString().toIntOrNull() ?: 0),
+                "description" to binding.etDescription.text.toString(),
+                "images" to mediaUrls.images,
+                "videos" to mediaUrls.videos,
+                "createdAt" to System.currentTimeMillis(),
+                "isAvailable" to true
+            )
+
+            // Save to Firestore
+            db.collection("properties")
+                .document(propertyId)
+                .set(propertyData)
+                .addOnSuccessListener {
+                    loadingDialog.dismiss()
+                    showSuccessDialog()
+                }
+                .addOnFailureListener { e ->
+                    loadingDialog.dismiss()
+                    showErrorDialog(e.message ?: getString(R.string.error_adding_property))
+                }
+        }
+    }
+
+    private fun uploadMediaFiles(propertyId: String, onComplete: (MediaUrls) -> Unit) {
+        val mediaUrls = MediaUrls(mutableListOf(), mutableListOf())
+        val totalFiles = selectedImages.size + selectedVideos.size
+        if (totalFiles == 0) {
+            onComplete(mediaUrls)
+            return
+        }
+
+        var completedUploads = 0
+
+        fun checkCompletion() {
+            completedUploads++
+            if (completedUploads == totalFiles) {
+                onComplete(mediaUrls)
+            }
+        }
+
+        // Upload images
+        selectedImages.forEach { imageUri ->
+            val imageRef = storage.reference.child("properties/$propertyId/images/${UUID.randomUUID()}")
+            imageRef.putFile(imageUri)
+                .continueWithTask { task ->
+                    if (!task.isSuccessful) {
+                        task.exception?.let { throw it }
+                    }
+                    imageRef.downloadUrl
+                }
+                .addOnSuccessListener { downloadUri ->
+                    mediaUrls.images.add(downloadUri.toString())
+                    checkCompletion()
+                }
+                .addOnFailureListener {
+                    checkCompletion()
+                }
+        }
+
+        // Upload videos
+        selectedVideos.forEach { videoUri ->
+            val videoRef = storage.reference.child("properties/$propertyId/videos/${UUID.randomUUID()}")
+            videoRef.putFile(videoUri)
+                .continueWithTask { task ->
+                    if (!task.isSuccessful) {
+                        task.exception?.let { throw it }
+                    }
+                    videoRef.downloadUrl
+                }
+                .addOnSuccessListener { downloadUri ->
+                    mediaUrls.videos.add(downloadUri.toString())
+                    checkCompletion()
+                }
+                .addOnFailureListener {
+                    checkCompletion()
+                }
+        }
+    }
+
+    private fun showLoadingDialog(): androidx.appcompat.app.AlertDialog {
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.adding_property)
+            .setMessage(R.string.please_wait)
+            .setCancelable(false)
+            .create()
+            .apply { show() }
+    }
+
+    private fun showSuccessDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.success)
+            .setMessage(R.string.property_added_success)
+            .setPositiveButton(R.string.ok) { _, _ ->
                 finish()
             }
-            .addOnFailureListener { e ->
-                showToast("Error: ${e.message}")
-            }
+            .show()
+    }
+
+    private fun showErrorDialog(message: String) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.error)
+            .setMessage(message)
+            .setPositiveButton(R.string.ok, null)
+            .show()
+    }
+
+    private fun checkLocationPermission() {
+        locationPermissionRequest.launch(arrayOf(
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+        ))
+    }
+
+    private fun getCurrentLocation() {
+        try {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location ->
+                    location?.let {
+                        currentLocation = LatLng(it.latitude, it.longitude)
+                        binding.tvLocationStatus.text = "Location selected: ${it.latitude}, ${it.longitude}"
+                    } ?: showErrorDialog("Could not get current location. Please try again or pick location from map.")
+                }
+                .addOnFailureListener { e ->
+                    showErrorDialog("Error getting location: ${e.message}")
+                }
+        } catch (e: SecurityException) {
+            showErrorDialog("Location permission not granted")
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                PICK_IMAGES_CODE -> {
-                    selectedImageUris.clear()
-                    data?.clipData?.let { clip ->
-                        for (i in 0 until clip.itemCount) {
-                            selectedImageUris.add(clip.getItemAt(i).uri)
-                        }
-                    } ?: data?.data?.let { selectedImageUris.add(it) }
-
-                    binding.imagePreviewRecycler.layoutManager =
-                        LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-                    binding.imagePreviewRecycler.adapter = ImagePreviewAdapter(selectedImageUris)
-
-                    showToast("${selectedImageUris.size} image(s) selected")
-                }
-
-                PICK_AGREEMENT_CODE -> {
-                    agreementUri = data?.data
-                    showToast("Agreement file selected")
-                }
+        if (requestCode == MAP_PICKER_REQUEST && resultCode == RESULT_OK) {
+            data?.let { intent ->
+                val latitude = intent.getDoubleExtra("latitude", 0.0)
+                val longitude = intent.getDoubleExtra("longitude", 0.0)
+                currentLocation = LatLng(latitude, longitude)
+                binding.tvLocationStatus.text = "Location selected: $latitude, $longitude"
             }
         }
     }
 
-    private fun showToast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    companion object {
+        private const val MAP_PICKER_REQUEST = 100
+    }
+
+    data class MediaUrls(
+        val images: MutableList<String>,
+        val videos: MutableList<String>
+    )
 }

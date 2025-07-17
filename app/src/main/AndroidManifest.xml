@@ -4,6 +4,8 @@
 
     <!-- ✅ Permissions must go outside the <application> tag -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
 
     <application
@@ -45,6 +47,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCbfwJrM-p_-C_veFUIgrp1ooybKMDpkAY" />
+
+        <!-- Map Selection Activity -->
+        <activity android:name=".owner.MapLocationPickerActivity" />
 
     </application>
 
