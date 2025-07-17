@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
-import android.location.Location
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -59,18 +58,34 @@ class MapLocationPickerActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        map.uiSettings.apply {
+            isZoomControlsEnabled = true
+            isScrollGesturesEnabled = true
+            isMapToolbarEnabled = true
+        }
 
+        // Set up map click listener
+        map.setOnMapClickListener { latLng ->
+            selectedLocation = latLng
+            updateMapMarker()
+            getAddressFromLocation(latLng)
+        }
+
+        // Check and request location permission if needed
         if (checkLocationPermission()) {
             setupMap()
         } else {
             requestLocationPermission()
         }
 
-        map.setOnMapClickListener { latLng ->
-            map.clear()
-            selectedLocation = latLng
-            map.addMarker(MarkerOptions().position(latLng))
-            getAddressFromLocation(latLng)
+        // If we have initial location from intent, use it
+        val initialLat = intent.getDoubleExtra("latitude", 0.0)
+        val initialLng = intent.getDoubleExtra("longitude", 0.0)
+        if (initialLat != 0.0 && initialLng != 0.0) {
+            val initialLocation = LatLng(initialLat, initialLng)
+            selectedLocation = initialLocation
+            updateMapMarker()
+            getAddressFromLocation(initialLocation)
         }
     }
 
@@ -79,20 +94,36 @@ class MapLocationPickerActivity : AppCompatActivity(), OnMapReadyCallback {
             map.isMyLocationEnabled = true
             getCurrentLocation()
         } catch (e: SecurityException) {
-            Toast.makeText(this, "Location permission required", Toast.LENGTH_SHORT).show()
+            requestLocationPermission()
         }
     }
 
     private fun getCurrentLocation() {
         try {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     val currentLatLng = LatLng(it.latitude, it.longitude)
+                    if (selectedLocation == null) {
+                        selectedLocation = currentLatLng
+                        updateMapMarker()
+                        getAddressFromLocation(currentLatLng)
+                    }
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
                 }
             }
         } catch (e: SecurityException) {
-            Toast.makeText(this, "Error getting location", Toast.LENGTH_SHORT).show()
+            showToast("Location permission not granted")
+        }
+    }
+
+    private fun updateMapMarker() {
+        map.clear()
+        selectedLocation?.let { location ->
+            map.addMarker(MarkerOptions()
+                .position(location)
+                .title("Selected Location")
+            )
+            map.animateCamera(CameraUpdateFactory.newLatLng(location))
         }
     }
 
@@ -100,18 +131,34 @@ class MapLocationPickerActivity : AppCompatActivity(), OnMapReadyCallback {
         try {
             val geocoder = Geocoder(this, Locale.getDefault())
             val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-            if (!addresses.isNullOrEmpty()) {
-                val address = addresses[0]
-                val addressBuilder = StringBuilder()
-                for (i in 0..address.maxAddressLineIndex) {
-                    addressBuilder.append(address.getAddressLine(i))
-                    if (i < address.maxAddressLineIndex) addressBuilder.append(", ")
-                }
-                selectedAddress = addressBuilder.toString()
-                binding.tvSelectedAddress.text = selectedAddress
+            
+            addresses?.firstOrNull()?.let { address ->
+                val addressText = address.getAddressLine(0)
+                binding.tvSelectedAddress.text = addressText
+                selectedAddress = addressText
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Error getting address", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+            showToast("Could not get address for selected location")
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    // Handle confirm button click
+    private fun setupClickListeners() {
+        binding.btnConfirmLocation.setOnClickListener {
+            selectedLocation?.let { location ->
+                val resultIntent = Intent().apply {
+                    putExtra("latitude", location.latitude)
+                    putExtra("longitude", location.longitude)
+                    putExtra("address", selectedAddress)
+                }
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            } ?: showToast("Please select a location first")
         }
     }
 

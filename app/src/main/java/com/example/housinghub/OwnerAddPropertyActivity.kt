@@ -1,11 +1,16 @@
 package com.example.housinghub
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.housinghub.adapters.ImageSliderAdapter
@@ -18,10 +23,17 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 import java.util.UUID
 
 class OwnerAddPropertyActivity : AppCompatActivity() {
@@ -60,7 +72,6 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
         when {
             permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true ||
             permissions[android.Manifest.permission.ACCESS_COARSE_LOCATION] == true -> {
-                // Permission granted, get current location
                 getCurrentLocation()
             }
             else -> {
@@ -79,15 +90,108 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
         setupMap()
     }
 
+    private fun searchAddressAndUpdateMap(address: String) {
+        if (address.length < 3) return  // Don't search for very short strings
+        
+        try {
+            val geocoder = android.location.Geocoder(this)
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val addresses = geocoder.getFromLocationName(address, 1)
+                    withContext(Dispatchers.Main) {
+                        if (!addresses.isNullOrEmpty()) {
+                            val location = addresses[0]
+                            val latLng = LatLng(location.latitude, location.longitude)
+                            updateSelectedLocation(latLng, false)  // Don't update EditText to avoid loops
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun updateSelectedLocation(latLng: LatLng, updateAddress: Boolean = true) {
+        currentLocation = latLng
+        
+        // Update map
+        map?.clear()
+        map?.addMarker(MarkerOptions()
+            .position(latLng)
+            .title("Selected Location"))
+        map?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+
+        // Update status text
+        binding.tvLocationStatus.text = "Location selected: ${latLng.latitude}, ${latLng.longitude}"
+
+        // Update address field using reverse geocoding if needed
+        if (updateAddress) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val geocoder = android.location.Geocoder(this@OwnerAddPropertyActivity, Locale.getDefault())
+                    val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+                    withContext(Dispatchers.Main) {
+                        if (!addresses.isNullOrEmpty()) {
+                            val address = addresses[0]
+                            val addressBuilder = StringBuilder()
+                            
+                            // Build complete address
+                            for (i in 0..address.maxAddressLineIndex) {
+                                addressBuilder.append(address.getAddressLine(i))
+                                if (i < address.maxAddressLineIndex) {
+                                    addressBuilder.append("\n")
+                                }
+                            }
+                            
+                            binding.etAddress.setText(addressBuilder.toString())
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
     private fun setupMap() {
-        // Initialize map fragment
         val mapFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as? SupportMapFragment
         mapFragment?.getMapAsync { googleMap ->
             map = googleMap
-            // Set default location or last selected location
-            currentLocation?.let { location ->
-                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+            map?.uiSettings?.apply {
+                isZoomControlsEnabled = true
+                isScrollGesturesEnabled = true
+                isZoomGesturesEnabled = true
+                isCompassEnabled = true
             }
+
+            // Set up map click listener
+            map?.setOnMapClickListener { latLng ->
+                updateSelectedLocation(latLng)
+            }
+
+            // Show current location if available
+            checkLocationPermission()
+
+            // Set up address input watcher with debounce
+            var searchJob: Job? = null
+            binding.etAddress.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    searchJob?.cancel()
+                    s?.toString()?.let { address ->
+                        if (address.length >= 3) {
+                            searchJob = lifecycleScope.launch {
+                                delay(1000) // Debounce for 1 second
+                                searchAddressAndUpdateMap(address)
+                            }
+                        }
+                    }
+                }
+            })
         }
     }
 
@@ -427,24 +531,33 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
     }
 
     private fun checkLocationPermission() {
-        locationPermissionRequest.launch(arrayOf(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-        ))
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                getCurrentLocation()
+            }
+            else -> {
+                locationPermissionRequest.launch(arrayOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ))
+            }
+        }
     }
 
     private fun getCurrentLocation() {
         try {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { location ->
-                    location?.let {
-                        currentLocation = LatLng(it.latitude, it.longitude)
-                        binding.tvLocationStatus.text = "Location selected: ${it.latitude}, ${it.longitude}"
-                    } ?: showErrorDialog("Could not get current location. Please try again or pick location from map.")
-                }
-                .addOnFailureListener { e ->
-                    showErrorDialog("Error getting location: ${e.message}")
-                }
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                location?.let {
+                    val currentLatLng = LatLng(it.latitude, it.longitude)
+                    updateSelectedLocation(currentLatLng)
+                    map?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                } ?: showErrorDialog("Could not get current location. Please try again.")
+            }.addOnFailureListener { e ->
+                showErrorDialog("Error getting location: ${e.message}")
+            }
         } catch (e: SecurityException) {
             showErrorDialog("Location permission not granted")
         }
@@ -456,8 +569,12 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
             data?.let { intent ->
                 val latitude = intent.getDoubleExtra("latitude", 0.0)
                 val longitude = intent.getDoubleExtra("longitude", 0.0)
+                val address = intent.getStringExtra("address") ?: ""
                 currentLocation = LatLng(latitude, longitude)
-                binding.tvLocationStatus.text = "Location selected: $latitude, $longitude"
+                if (address.isNotEmpty()) {
+                    binding.etAddress.setText(address)
+                }
+                updateSelectedLocation(currentLocation!!, address.isEmpty())
             }
         }
     }
