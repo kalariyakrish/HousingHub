@@ -27,7 +27,6 @@ class SplashScreen : AppCompatActivity() {
         setContentView(R.layout.activity_splash_screen)
 
         Log.d("SplashActivity", "SplashActivity launched")
-        Toast.makeText(this, "Splash loaded", Toast.LENGTH_SHORT).show()
 
         // Initialize views
         val logo = findViewById<ImageView>(R.id.logoImage)

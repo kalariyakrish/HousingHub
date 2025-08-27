@@ -45,15 +45,6 @@
                     android:textSize="22sp"
                     android:textStyle="bold"
                     android:textColor="#1A1A1A" />
-
-                <ImageButton
-                    android:id="@+id/ivNotification"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_notifications"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="12dp"
-                    app:tint="#2196F3" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

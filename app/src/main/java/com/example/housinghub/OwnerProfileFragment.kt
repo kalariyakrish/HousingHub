@@ -115,17 +115,21 @@ class OwnerProfileFragment : Fragment() {
 
     private fun setMenuClickListeners(view: View) {
         try {
-            val optionMap = mapOf(
-                R.id.optionAccountSecurity to "Account Security",
-                R.id.optionNotifications to "Notifications",
-                R.id.optionPrivacy to "Privacy"
-            )
-
-            for ((id, title) in optionMap) {
-                view.findViewById<TextView>(id)?.setOnClickListener {
-                    Toast.makeText(context, "$title clicked", Toast.LENGTH_SHORT).show()
-                }
+            // Account Security
+            view.findViewById<TextView>(R.id.optionAccountSecurity)?.setOnClickListener {
+                startActivity(Intent(requireContext(), AccountSecurityActivity::class.java))
             }
+            
+            // Notifications
+            view.findViewById<TextView>(R.id.optionNotifications)?.setOnClickListener {
+                startActivity(Intent(requireContext(), NotificationsActivity::class.java))
+            }
+            
+            // Privacy
+            view.findViewById<TextView>(R.id.optionPrivacy)?.setOnClickListener {
+                startActivity(Intent(requireContext(), PrivacyActivity::class.java))
+            }
+            
         } catch (e: Exception) {
             Toast.makeText(context, "Error setting up menu: ${e.message}", Toast.LENGTH_SHORT).show()
         }
