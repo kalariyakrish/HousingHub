@@ -33,7 +33,9 @@
 
         <!-- Tenant Side Activities -->
         <activity android:name=".HomePageActivity" android:exported="false" />
-    <activity android:name=".PropertyDetailsActivity" />
+        <activity android:name=".PropertyDetailsActivity" />
+        <activity android:name=".BookingFormActivity" android:exported="false" />
+        <activity android:name=".BookingConfirmationActivity" android:exported="false" />
         <activity android:name=".SignUpPage" android:exported="false" />
         <activity android:name=".LoginPage" android:exported="false" />
         <activity android:name=".MainActivity" android:exported="false" />

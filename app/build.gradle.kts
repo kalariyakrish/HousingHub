@@ -73,9 +73,8 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
-    // ✅ Glide
+    // ✅ Glide (single version)
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation(libs.androidx.recyclerview)
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     // ✅ Cloudinary
@@ -87,33 +86,25 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
-    implementation ("com.google.android.gms:play-services-maps:18.1.0")
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    // ✅ Maps and Location
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
-    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    // ✅ RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 
+    // ✅ ViewPager2
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
 
-    implementation("com.github.bumptech.glide:glide:4.12.0")
-    implementation ("com.google.firebase:firebase-storage-ktx:20.0.0")
-    implementation ("com.google.firebase:firebase-firestore-ktx:23.0.0")
+    // ✅ SwipeRefreshLayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
+    // ✅ Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
-    implementation ("com.github.bumptech.glide:glide:4.15.1")
-    implementation ("com.google.firebase:firebase-storage-ktx")
-    implementation ("com.google.firebase:firebase-firestore-ktx")
-    implementation ("androidx.viewpager2:viewpager2:1.0.0")
+    // ✅ Lifecycle
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
 
-
-    implementation ("com.github.bumptech.glide:glide:4.15.1")
-    implementation ("androidx.viewpager2:viewpager2:1.0.0")
-
-
-
-    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation ("com.google.android.material:material:1.9.0")
-
-
+    // ✅ Razorpay Payment Gateway
+    implementation("com.razorpay:checkout:1.6.38")
 }

@@ -49,22 +49,22 @@ class OwnerHomeFragment : Fragment() {
                     if (document != null && document.exists()) {
                         val name = document.getString("name") ?: document.getString("fullName")
                         if (!name.isNullOrEmpty()) {
-                            binding.tvGreeting.text = "Welcome, $name 👋"
+                            binding.tvGreeting.text = "Welcome, $name "
                         } else {
                             // Fallback to display email if name is not found
                             val displayName = currentUser.displayName ?: currentUser.email?.substringBefore("@")
-                            binding.tvGreeting.text = "Welcome, $displayName 👋"
+                            binding.tvGreeting.text = "Welcome, $displayName "
                         }
                     } else {
                         // If document doesn't exist, use Firebase Auth display name or email
                         val displayName = currentUser.displayName ?: currentUser.email?.substringBefore("@")
-                        binding.tvGreeting.text = "Welcome, $displayName 👋"
+                        binding.tvGreeting.text = "Welcome, $displayName "
                     }
                 }
                 .addOnFailureListener {
                     // In case of any error, use Firebase Auth display name or email
                     val displayName = currentUser.displayName ?: currentUser.email?.substringBefore("@")
-                    binding.tvGreeting.text = "Welcome, $displayName 👋"
+                    binding.tvGreeting.text = "Welcome, $displayName "
                 }
         }
     }

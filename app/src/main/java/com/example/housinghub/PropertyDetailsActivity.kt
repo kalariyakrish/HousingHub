@@ -357,8 +357,14 @@ class PropertyDetailsActivity : AppCompatActivity() {
     private fun bookProperty() {
         property?.let { p ->
             if (p.isAvailable) {
-                Toast.makeText(this, "Booking request sent for ${p.title}", Toast.LENGTH_SHORT).show()
-                // TODO: Implement actual booking functionality
+                // Navigate to booking form with individual property data instead of full object
+                val intent = Intent(this, BookingFormActivity::class.java)
+                intent.putExtra("propertyId", p.id)
+                intent.putExtra("ownerId", p.ownerId)
+                intent.putExtra("propertyTitle", p.title)
+                intent.putExtra("propertyPrice", p.price)
+                intent.putExtra("propertyAddress", p.address.ifEmpty { p.location })
+                startActivity(intent)
             } else {
                 Toast.makeText(this, "This property is not available for booking", Toast.LENGTH_SHORT).show()
             }

@@ -169,4 +169,37 @@
     <string name="owner_selected">UI selected: Owner (Saved role will be used)</string>
 
 
+    
+    <!-- Booking Strings -->
+    <string name="book_property">Book Property</string>
+    <string name="booking_confirmed">Booking Confirmed!</string>
+    <string name="payment_successful">Your advance payment has been processed successfully</string>
+    <string name="booking_details">Booking Details</string>
+    <string name="payment_details">Payment Details</string>
+    <string name="next_steps">Next Steps</string>
+    <string name="check_in_date">Check-in Date</string>
+    <string name="duration">Duration</string>
+    <string name="number_of_occupants">Number of Occupants</string>
+    <string name="special_notes">Special Notes (Optional)</string>
+    <string name="payment_summary">Payment Summary</string>
+    <string name="monthly_rent">Monthly Rent</string>
+    <string name="total_amount">Total Amount</string>
+    <string name="advance_payment">Advance Payment (20%)</string>
+    <string name="remaining_amount">Remaining Amount</string>
+    <string name="terms_conditions">I agree to the terms and conditions</string>
+    <string name="proceed_to_payment">Proceed to Payment</string>
+    <string name="contact_property_owner">Contact Property Owner</string>
+    <string name="view_my_bookings">View My Bookings</string>
+    <string name="back_to_home">Back to Home</string>
+    <string name="booking_id">Booking ID</string>
+    <string name="property">Property</string>
+    <string name="location">Location</string>
+    <string name="occupants">Occupants</string>
+    <string name="payment_id">Payment ID</string>
+    <string name="advance_paid">Advance Paid</string>
+    <string name="amount_paid">Amount Paid</string>
+    
+    <!-- Razorpay Configuration -->
+    <string name="razorpay_key_id">rzp_test_A6DrVXpkyXHyww</string> <!-- Replace with your actual Razorpay key -->
+    
 </resources>
