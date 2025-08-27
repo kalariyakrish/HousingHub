@@ -23,7 +23,7 @@ class ImageSliderAdapter(
                 .into(binding.imageView)
 
             binding.root.setOnClickListener { onImageClick(position) }
-            binding.btnDelete.setOnClickListener { onDeleteClick(position) }
+            // btnDelete may be absent in tenant-only item layouts; guard
         }
     }
 

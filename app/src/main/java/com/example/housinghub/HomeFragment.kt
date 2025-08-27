@@ -104,6 +104,7 @@ class HomeFragment : Fragment(), BookmarkClickListener {
     }
 
     private fun showLoading(show: Boolean) {
+        if (!isAdded) return
         _binding?.let { b ->
             b.loadingProgress.visibility = if (show) View.VISIBLE else View.GONE
         }
@@ -111,6 +112,7 @@ class HomeFragment : Fragment(), BookmarkClickListener {
     }
 
     private fun showEmptyState(show: Boolean) {
+        if (!isAdded) return
         _binding?.let { b ->
             b.emptyState.visibility = if (show) View.VISIBLE else View.GONE
             b.propertyRecyclerView.visibility = if (show) View.GONE else View.VISIBLE
@@ -196,7 +198,8 @@ class HomeFragment : Fragment(), BookmarkClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+    swipeRefreshLayout = null
+    _binding = null
     }
 }
 

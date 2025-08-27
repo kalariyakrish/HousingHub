@@ -15,17 +15,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:contentDescription="Property Image" />
+            android:contentDescription="Property Image"
+            android:adjustViewBounds="true" />
 
-        <ImageButton
-            android:id="@+id/btnDelete"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="top|end"
-            android:layout_margin="4dp"
-            android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_menu_delete"
-            app:tint="@android:color/white" />
+        <!-- subtle gradient overlay for better contrast on text/play icon -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/gradient_overlay_transparent" />
     </FrameLayout>
 
 </androidx.cardview.widget.CardView>

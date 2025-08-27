@@ -15,8 +15,9 @@ class ImageSliderAdapter(private val images: MutableList<Uri> = mutableListOf(),
     RecyclerView.Adapter<ImageSliderAdapter.ImageViewHolder>() {
 
     inner class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val imageView: ImageView = view.findViewById(R.id.sliderImage)
-        val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
+    val imageView: ImageView = view.findViewById(R.id.sliderImage)
+    // delete button may not exist in tenant layouts; findViewById returns null if missing
+    val btnDelete: ImageButton? = view.findViewById(R.id.btnDelete)
 
         init {
             imageView.setOnClickListener {
@@ -26,7 +27,7 @@ class ImageSliderAdapter(private val images: MutableList<Uri> = mutableListOf(),
                 }
             }
             
-            btnDelete.setOnClickListener {
+            btnDelete?.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onDeleteClick(position)
