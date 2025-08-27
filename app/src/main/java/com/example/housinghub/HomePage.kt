@@ -28,7 +28,6 @@ class HomePageActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             val fragment: Fragment = when (item.itemId) {
                 R.id.nav_home -> HomeFragment()
-                R.id.nav_search -> SearchFragment()
                 R.id.nav_saved -> SavedFragment()
                 R.id.nav_messages -> MessageFragment()
                 R.id.nav_profile -> ProfileFragment()

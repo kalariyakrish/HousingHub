@@ -203,39 +203,24 @@ class PropertyDetailsActivity : AppCompatActivity() {
     }
 
     private fun setupPropertyFeatures(p: Property) {
-        // Extract bedroom count from type
-        val bedrooms = extractBedrooms(p.type)
-        if (bedrooms != null) {
-            tvBedrooms.text = bedrooms
+        // Use actual bedroom count from property data
+        if (p.bedrooms > 0) {
+            tvBedrooms.text = p.bedrooms.toString()
             layoutBeds.visibility = View.VISIBLE
         } else {
             layoutBeds.visibility = View.GONE
         }
 
-        // Extract bathroom count from description
-        val bathrooms = extractBathrooms(p.description)
-        if (bathrooms != null) {
-            tvBathrooms.text = bathrooms
+        // Use actual bathroom count from property data
+        if (p.bathrooms > 0) {
+            tvBathrooms.text = p.bathrooms.toString()
             layoutBaths.visibility = View.VISIBLE
         } else {
             layoutBaths.visibility = View.GONE
         }
 
-        // For now, show a default area - this should ideally be in the Property model
-        tvArea.text = "1200"
-        layoutArea.visibility = View.VISIBLE
-    }
-
-    private fun extractBedrooms(type: String): String? {
-        return try {
-            Regex("(\\d+)").find(type)?.value
-        } catch (e: Exception) { null }
-    }
-
-    private fun extractBathrooms(description: String): String? {
-        return try {
-            Regex("(\\d+)\\s*bath", RegexOption.IGNORE_CASE).find(description)?.groupValues?.get(1)
-        } catch (e: Exception) { null }
+        // Hide area section since we're focusing on bedrooms/bathrooms
+        layoutArea.visibility = View.GONE
     }
 
     private fun setupImageCarousel(images: List<String>) {
@@ -283,18 +268,26 @@ class PropertyDetailsActivity : AppCompatActivity() {
         layoutVideos.visibility = View.VISIBLE
         val videoUrl = videos[0]
 
-        // Load video thumbnail if available (use first image as fallback)
-        property?.let { p ->
-            if (p.images.isNotEmpty()) {
-                Glide.with(this)
-                    .load(p.images[0])
-                    .centerCrop()
-                    .into(ivVideoPreview)
-            }
-        }
+        // Generate video thumbnail
+        generateVideoThumbnail(videoUrl)
 
         btnPlayVideo.setOnClickListener {
             playVideo(videoUrl)
+        }
+    }
+
+    private fun generateVideoThumbnail(videoUrl: String) {
+        try {
+            // Use Glide to load video thumbnail
+            Glide.with(this)
+                .asBitmap()
+                .load(videoUrl)
+                .centerCrop()
+                .error(R.drawable.ic_video_placeholder) // Fallback icon if thumbnail generation fails
+                .into(ivVideoPreview)
+        } catch (e: Exception) {
+            // If video thumbnail fails, show a video placeholder icon
+            ivVideoPreview.setImageResource(R.drawable.ic_video_placeholder)
         }
     }
 

@@ -19,6 +19,9 @@ data class Property(
     var createdAt: Timestamp? = null,
     var isAvailable: Boolean = true,
     var isBookmarked: Boolean = false,
+    // Property specific fields
+    var bedrooms: Int = 0,
+    var bathrooms: Int = 0,
     // Extra fields used in parts of the app; kept for compatibility
     var description: String = "",
     var agreementUrl: String = "",

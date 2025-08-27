@@ -23,5 +23,8 @@ data class Property(
     val timestamp: String = Date().toString(),
     var location: String = "",
     val propertyName: String = "",
-    val rating: Double? = null
+    val rating: Double? = null,
+    // Property specific fields
+    var bedrooms: Int = 0,
+    var bathrooms: Int = 0
 )

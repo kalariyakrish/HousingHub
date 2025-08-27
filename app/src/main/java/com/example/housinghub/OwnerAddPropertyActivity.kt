@@ -11,6 +11,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -50,6 +52,9 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
     private var currentStep = 1
     private val totalSteps = 4
 
+    // Property type options
+    private val propertyTypes = arrayOf("PG", "Flat", "Room", "House")
+
     // Cloudinary configuration constants
     private companion object {
         const val CLOUDINARY_CLOUD_NAME = "dp82wqtwj"
@@ -74,6 +79,9 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
 
         // Initialize fusedLocationClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        // Setup property type dropdown
+        setupPropertyTypeDropdown()
 
         // Initialize adapters
         imageSliderAdapter = ImageSliderAdapter(
@@ -127,6 +135,36 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
 
         // Update UI for first step
         updateStepUI()
+    }
+
+    private fun setupPropertyTypeDropdown() {
+        // Create adapter for the dropdown with custom layout
+        val adapter = ArrayAdapter(this, R.layout.dropdown_property_type_item, propertyTypes)
+        
+        // Set the adapter to the AutoCompleteTextView
+        val autoCompleteTextView = binding.etPropertyType as AutoCompleteTextView
+        autoCompleteTextView.setAdapter(adapter)
+        
+        // Set click listener to show dropdown immediately when clicked
+        autoCompleteTextView.setOnClickListener {
+            autoCompleteTextView.showDropDown()
+        }
+        
+        // Set focus change listener to show dropdown when focused
+        autoCompleteTextView.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                autoCompleteTextView.showDropDown()
+            }
+        }
+        
+        // Set item click listener to handle selection
+        autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            // Clear any existing error when a valid item is selected
+            binding.tilPropertyType.error = null
+        }
+        
+        // Optional: Set a default selection
+        // autoCompleteTextView.setText(propertyTypes[0], false)
     }
 
     override fun onDestroy() {
@@ -512,8 +550,18 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
             return false
         }
 
-        if (binding.etPropertyType.text.isNullOrBlank()) {
+        val autoCompleteTextView = binding.etPropertyType as AutoCompleteTextView
+        if (autoCompleteTextView.text.isNullOrBlank()) {
             binding.tilPropertyType.error = getString(R.string.property_type_required)
+            binding.viewFlipper.displayedChild = 0
+            currentStep = 1
+            updateStepUI()
+            return false
+        }
+
+        // Validate that the selected property type is from the allowed options
+        if (!propertyTypes.contains(autoCompleteTextView.text.toString())) {
+            binding.tilPropertyType.error = "Please select a valid property type"
             binding.viewFlipper.displayedChild = 0
             currentStep = 1
             updateStepUI()
@@ -817,11 +865,15 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
     }
 
     private fun createPropertyObject(mediaUrls: MediaUrls): Map<String, Any> {
+        val autoCompleteTextView = binding.etPropertyType as AutoCompleteTextView
+        
         return mapOf(
             "title" to binding.etPropertyTitle.text.toString(),
-            "type" to binding.etPropertyType.text.toString(),
+            "type" to autoCompleteTextView.text.toString(),
+            "propertyType" to autoCompleteTextView.text.toString(), // Added for consistency with Property model
             "price" to binding.etPrice.text.toString().toDouble(),
             "address" to binding.etAddress.text.toString(),
+            "location" to binding.etAddress.text.toString(), // Added for consistency with Property model
             "latitude" to (currentLocation?.latitude ?: 0.0),
             "longitude" to (currentLocation?.longitude ?: 0.0),
             "bedrooms" to (binding.etBedrooms.text.toString().toIntOrNull() ?: 0),
@@ -829,7 +881,7 @@ class OwnerAddPropertyActivity : AppCompatActivity() {
             "description" to binding.etDescription.text.toString(),
             "images" to mediaUrls.images,
             "videos" to mediaUrls.videos,
-            "ownerId" to (auth.currentUser?.uid ?: ""),
+            "ownerId" to (auth.currentUser?.email ?: ""), // Use email as ownerId for consistency
             "createdAt" to com.google.firebase.Timestamp.now(),
             "isAvailable" to true
         )
