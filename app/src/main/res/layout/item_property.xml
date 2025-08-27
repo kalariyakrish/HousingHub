@@ -29,28 +29,6 @@
             android:layout_gravity="start|top"
             android:padding="8dp">
 
-            <TextView
-                android:id="@+id/badge_verified"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/badge_verified"
-                android:text="Verified"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="3dp" />
-
-            <TextView
-                android:id="@+id/badge_new"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/badge_new"
-                android:text="New"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="3dp" />
         </LinearLayout>
 
         <!-- Top Right Bookmark -->
