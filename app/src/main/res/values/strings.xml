@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HousingHub</string>
+    <string name="housinghub">HousingHub</string>
+    <string name="housing_hub">Housing Hub</string>
+    <string name="find_your_perfect_stay_effortlessly">Find your perfect stay effortlessly</string>
+    <string name="splash_logo_description">Logo of HousingHub</string>
+    <string name="welcome">Welcome</string>
+    <string name="sign_in_or_create_an_account">Sign in or create an account</string>
+    <string name="or">or</string>
+    <string name="password">Password</string>
+    <string name="sign_up">SignUp</string>
+    <string name="app_title">HousingHub</string>
+    <string name="app_tagline">Find Your Home</string>
+    <string name="login">Login</string>
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="enter_your_email">Enter Your Email</string>
+    <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy</string>
+    <string name="create_account">Create account</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="full_name">Full name</string>
+
+
+
+
+    <!-- Add room details strings -->
+
+    <string name="add_room_details">Add Room Details</string>
+    <string name="room_title">Room Title</string>
+    <string name="enter_room_title">Enter room title</string>
+    <string name="rent_price">Rent Price</string>
+    <string name="rent_hint">Rent (₹)</string>
+    <string name="address">Address</string>
+    <string name="enter_address">Enter full address</string>
+    <string name="room_type">Room Type</string>
+    <string name="furnishing_status">Furnishing Status</string>
+    <string name="furnished">Furnished</string>
+    <string name="semi_furnished">Semi-Furnished</string>
+    <string name="unfurnished">Unfurnished</string>
+    <string name="current_students">Current Students</string>
+    <string name="current_students_number">Number of current students</string>
+    <string name="total_capacity">Total Capacity</string>
+    <string name="total_capacity_hint">Total capacity</string>
+    <string name="gender_preference">Gender Preference</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="any">Any</string>
+    <string name="facilities">Facilities</string>
+    <string name="attached_bathroom">Attached Bathroom</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="ac_cooler">AC / Cooler</string>
+    <string name="kitchen_access">Kitchen Access</string>
+    <string name="water_timing">Water Timing</string>
+    <string name="water_timing_hint">e.g., 24/7</string>
+    <string name="description">Description</string>
+    <string name="description_hint">Describe the room</string>
+    <string name="contact_number">Contact Number</string>
+    <string name="contact_number_hint">Owner contact number</string>
+    <string name="submit_room">Submit Room</string>
+    <string name="fill_required_fields">Please fill all required fields</string>
+    <string name="room_added_success">Room added successfully!</string>
+
+    <!-- homepage -->
+
+    <!-- Location -->
+    <string name="location_vadodara">Vadodara</string>
+
+    <!-- Search -->
+    <string name="search_hint">Search rooms, areas, or landmarks</string>
+
+    <!-- Promo Banner -->
+    <string name="promo_text">Get 50% OFF\nOn your first month’s rent</string>
+
+    <!-- Sections -->
+    <string name="section_popular_near_you">Popular Near You</string>
+    <string name="section_recommendations">Recommendations for You</string>
+    <string name="section_recently_viewed">Recently Viewed</string>
+
+    <!-- Cards -->
+    <string name="card_alkapuri_price">₹25,000/mo\nALKAAPURI</string>
+    <string name="card_karelibaug_price">₹30,000/mo\nKARELIBAUG</string>
+    <string name="card_gotri_price">₹22,000/mo\nGOTRI\nSTUDIO</string>
+    <string name="card_fateggunj_price">₹35,000/mo\nFATEHGUNJ\n1 BEDROOM</string>
+    <string name="card_sayajigunj_price">₹28,000/mo\nSAYAJIGUNJ</string>
+    <string name="card_waghodia_price">₹32,000/mo\nWAGHODIA</string>
+
+    <!-- Ratings -->
+    <string name="rating_alkapuri">4.8</string>
+    <string name="rating_karelibaug">4.5</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="price_format">₹%1$.0f/month</string>
+    <string name="comfort_stay_pg">Comfort Stay PG</string>
+    <string name="luxury_studio">Luxury Studio</string>
+    <string name="budget_pg">Budget PG</string>
+
+    <string name="total_properties">Total Properties</string>
+    <string name="pending_requests">Pending Requests</string>
+    <string name="views">Views</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="add_property">Add Property</string>
+    <string name="manage_properties">Manage Properties</string>
+    <string name="chats">Chats</string>
+    <string name="help_support"><![CDATA[Help & Support]]></string>
+    <string name="tenant">Tenant</string>
+    <string name="owner">Owner</string>
+    <string name="upload_images_videos"><![CDATA[Upload Images & Videos]]></string>
+
+    <!-- Property Addition -->
+    <string name="error">Error</string>
+    <string name="ok">OK</string>
+    <string name="error_not_logged_in">You must be logged in to add a property</string>
+    <string name="error_adding_property">Failed to add property</string>
+    <string name="adding_property">Adding Property</string>
+    <string name="please_wait">Please wait while we upload your property...</string>
+    <string name="success">Success</string>
+    <string name="property_added_success">Property added successfully!</string>
+    <string name="tvNoPhotos">No photos added yet</string>
+    <string name="tvNoVideos">No videos added yet</string>
+    <string name="tvPhotoCount">%d photos selected</string>
+    <string name="tvVideoCount">%d videos selected</string>
+    <string name="tvLocationStatus">Location not selected</string>
+
+
+
+        <!-- Existing strings from previous messages -->
+        <string name="location_permission_required">Location permission is required to get current location</string>
+        <string name="address_required">Address is required</string>
+        <string name="select_location">Please select a location on the map</string>
+        <string name="could_not_get_location">Could not get current location</string>
+        <string name="error_getting_location">Error getting location: %1$s</string>
+        <string name="error_getting_address">Error getting address: %1$s</string>
+        <string name="could_not_get_address">Could not get address</string>
+        <string name="user_not_authenticated">User not authenticated</string>
+        <string name="property_title_required">Property title is required</string>
+        <string name="property_type_required">Property type is required</string>
+        <string name="price_required">Price is required</string>
+        <string name="invalid_price_format">Invalid price format</string>
+        <string name="image_required">At least one image is required</string>
+        <string name="error_creating_owner_document">Error creating owner document: %1$s</string>
+        <string name="could_not_play_video">Could not play video: %1$s</string>
+        <string name="could_not_view_image">Could not view image: %1$s</string>
+
+        <!-- New strings for SignUpPage -->
+        <string name="full_name_required">Full Name is required</string>
+        <string name="invalid_email">Enter valid email</string>
+        <string name="password_too_short">Password must be at least 6 characters</string>
+        <string name="passwords_do_not_match">Passwords do not match</string>
+        <string name="invalid_mobile_number">Enter valid mobile number</string>
+        <string name="sign_up_failed">Sign up failed: %1$s</string>
+        <string name="failed_to_get_user_id">Failed to get user ID</string>
+        <string name="failed_to_create_user">Failed to create user: %1$s</string>
+        <string name="google_sign_in_failed">Google Sign-In Failed: %1$s</string>
+        <string name="failed_to_save_user_data">Failed to save user data: %1$s</string>
+        <string name="select_role">Please select a role</string>
+
+    <string name="no_properties_found">No properties found</string>
+    <string name="error_fetching_properties">Error fetching properties: %1$s</string>
+
+    <string name="login_failed">Login failed: %1$s</string>
+    <string name="user_id_not_found">User ID not found</string>
+    <string name="user_data_not_found">User data not found</string>
+    <string name="failed_to_fetch_user_role">Failed to fetch user role: %1$s</string>
+    <string name="navigation_error">Navigation error: %1$s</string>
+    <string name="role_not_found">Role not found</string>
+    <string name="tenant_selected">UI selected: Tenant (Saved role will be used)</string>
+    <string name="owner_selected">UI selected: Owner (Saved role will be used)</string>
+
+
+</resources>

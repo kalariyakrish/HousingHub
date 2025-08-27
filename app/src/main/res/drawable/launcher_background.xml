@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background gradient (diagonal light blue cross) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <gradient
+                android:type="linear"
+                android:angle="45"
+                android:startColor="#7F1A4CB3"
+                android:centerColor="#FFFFFF"
+                android:endColor="#7F1A4CB3"
+                android:centerY="0.5" />
+        </shape>
+    </item>
+
+    <!-- Subtle inner shadow -->
+    <item android:left="4dp" android:right="4dp" android:top="4dp" android:bottom="4dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <gradient
+                android:type="radial"
+                android:gradientRadius="300"
+                android:centerColor="#10FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:centerX="0.5"
+                android:centerY="0.5" />
+        </shape>
+    </item>
+</layer-list>
