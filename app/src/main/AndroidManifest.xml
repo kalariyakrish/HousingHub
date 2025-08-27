@@ -21,7 +21,7 @@
         <activity android:name=".OwnerAddPropertyActivity"
             android:windowSoftInputMode="adjustResize" /> <!-- ✅ -->
 
-        <activity android:name=".owner.OwnerManagePropertyActivity" />
+        <activity android:name=".OwnerManagePropertyActivity" />
         <activity android:name=".owner.OwnerChatActivity" />
         <activity android:name=".OwnerHomePageActivity" />
         <activity android:name=".owner.AccountSecurityActivity" />
@@ -29,7 +29,7 @@
         <activity android:name=".owner.PrivacyActivity" />
         <activity android:name=".owner.HelpSupportActivity" />
         <activity android:name=".owner.AboutActivity" />
-        <activity android:name=".owner.EditProfileActivity" />
+        <activity android:name=".EditProfileActivity" />
 
         <!-- Tenant Side Activities -->
         <activity android:name=".HomePageActivity" android:exported="false" />

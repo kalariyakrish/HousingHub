@@ -79,19 +79,6 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSearch"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="4dp"
-                        android:backgroundTint="@color/nav_selected"
-                        app:cornerRadius="14dp"
-                        app:icon="@android:drawable/ic_search_category_default"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        app:iconTint="@color/white"
-                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
                 </LinearLayout>
 
@@ -130,7 +117,6 @@
                     android:layout_marginEnd="8dp"
                     android:checked="true"
                     android:text="All"
-                    app:chipBackgroundColor="@color/nav_selected"
                     app:chipCornerRadius="20dp"
                     style="@style/Widget.MaterialComponents.Chip.Choice" />
 
@@ -236,6 +222,8 @@
                     android:nestedScrollingEnabled="false"
                     android:paddingHorizontal="8dp"
                     android:paddingBottom="80dp"
+                    android:paddingTop="40dp"
+
                     tools:listitem="@layout/item_property_enhanced" />
 
             </LinearLayout>

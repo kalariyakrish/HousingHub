@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.housinghub.EditProfileActivity
 import com.example.housinghub.LoginPage
 import com.example.housinghub.R
 import com.example.housinghub.utils.UserSessionManager

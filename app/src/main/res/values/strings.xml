@@ -16,7 +16,7 @@
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
     <string name="continue_with_google">Continue with Google</string>
     <string name="enter_your_email">Enter Your Email</string>
-    <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy</string>
+    <string name="by_continuing_you_agree_to_our_terms_of_service_and_privacy_policy">by continuing you agree to our terms of service and privacy policy</string>
     <string name="create_account">Create account</string>
     <string name="confirm_password">Confirm password</string>
     <string name="full_name">Full name</string>

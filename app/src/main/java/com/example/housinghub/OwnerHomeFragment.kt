@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import com.example.housinghub.OwnerAddPropertyActivity
 import com.example.housinghub.databinding.FragmentOwnerHomeBinding
 import com.example.housinghub.owner.OwnerChatActivity
-import com.example.housinghub.owner.OwnerManagePropertyActivity
+import com.example.housinghub.OwnerManagePropertyActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 

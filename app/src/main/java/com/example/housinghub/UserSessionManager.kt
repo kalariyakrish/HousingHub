@@ -17,6 +17,10 @@ class UserSessionManager(context: Context) {
         }
     }
 
+    fun saveUserName(name: String) {
+        prefs.edit().putString("name", name).apply()
+    }
+
     fun getFullName(): String = prefs.getString("name", "") ?: ""
     fun getEmail(): String = prefs.getString("email", "") ?: ""
     fun getPhone(): String = prefs.getString("phone", "") ?: ""
@@ -24,5 +28,9 @@ class UserSessionManager(context: Context) {
 
     fun clearUserSession() {
         prefs.edit().clear().apply()
+    }
+
+    fun clearSession() {
+        clearUserSession()
     }
 }

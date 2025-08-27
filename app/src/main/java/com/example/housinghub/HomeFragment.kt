@@ -111,11 +111,6 @@ class HomeFragment : Fragment(), PropertyInteractionListener {
         
         binding.searchEditText.addTextChangedListener(textWatcher)
 
-        // Search button click
-        binding.btnSearch?.setOnClickListener {
-            val query = binding.searchEditText.text.toString()
-            filterProperties(query)
-        }
     }
 
     private fun setupFilters() {

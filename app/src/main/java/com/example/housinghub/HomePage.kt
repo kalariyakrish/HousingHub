@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.housinghub.databinding.ActivityHomePageBinding
 import com.example.housinghub.fragments.TenantMessageFragment
-import com.example.housinghub.ui.profile.ProfileFragment
+import com.example.housinghub.ProfileFragment
 
 class HomePageActivity : AppCompatActivity() {
 
