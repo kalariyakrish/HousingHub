@@ -40,6 +40,8 @@ data class Booking(
         const val STATUS_CANCELLED = "cancelled"
         const val STATUS_ACTIVE = "active"
         const val STATUS_COMPLETED = "completed"
+        const val STATUS_APPROVED = "approved"
+        const val STATUS_REJECTED = "rejected"
         
         // Booking advance percentage (20% of monthly rent)
         const val ADVANCE_PERCENTAGE = 0.20

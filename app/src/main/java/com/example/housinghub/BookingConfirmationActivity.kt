@@ -107,11 +107,6 @@ class BookingConfirmationActivity : AppCompatActivity() {
             contactOwner()
         }
 
-        binding.btnViewBookings.setOnClickListener {
-            // Navigate to bookings list (you can implement this)
-            Toast.makeText(this, "My Bookings feature coming soon!", Toast.LENGTH_SHORT).show()
-        }
-
         binding.btnBackToHome.setOnClickListener {
             navigateToHome()
         }

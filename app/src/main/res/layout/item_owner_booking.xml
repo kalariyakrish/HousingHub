@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Property Title and Status Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvPropertyTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Property Title"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/tvBookingStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CONFIRMED"
+                android:textSize="12sp"
+                android:textColor="@android:color/white"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/rounded_corner_8dp" />
+
+        </LinearLayout>
+
+        <!-- Property Location -->
+        <TextView
+            android:id="@+id/tvPropertyLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Property Location"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginTop="4dp"
+            android:drawableStart="@drawable/ic_location"
+            android:drawablePadding="4dp"
+            android:gravity="center_vertical" />
+
+        <!-- Booking ID -->
+        <TextView
+            android:id="@+id/tvBookingId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ID: ABCD1234"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:layout_marginTop="8dp"
+            android:fontFamily="monospace" />
+
+        <!-- Tenant Information Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="#F8F9FA"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tenant Information"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvTenantName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tenant Name"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:drawableStart="@drawable/ic_user"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical" />
+
+            <TextView
+                android:id="@+id/tvTenantPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tenant Phone"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp"
+                android:drawableStart="@drawable/ic_phone"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical" />
+
+            <TextView
+                android:id="@+id/tvTenantEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="tenant@email.com"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp"
+                android:drawableStart="@drawable/ic_email"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical" />
+
+        </LinearLayout>
+
+        <!-- Dates -->
+        <TextView
+            android:id="@+id/tvBookingDates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dec 01, 2023 - Dec 31, 2023"
+            android:textSize="14sp"
+            android:textColor="#333333"
+            android:layout_marginTop="8dp"
+            android:drawableStart="@drawable/ic_calendar"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <!-- Duration and Occupants -->
+        <TextView
+            android:id="@+id/tvDurationOccupants"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1 Month • 2 occupants"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginTop="4dp"
+            android:drawableStart="@drawable/ic_list"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <!-- Special Notes -->
+        <TextView
+            android:id="@+id/tvSpecialNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Notes: Special requirements or notes from tenant"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:background="#FFF9C4"
+            android:padding="8dp"
+            android:drawableStart="@drawable/ic_note"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+
+        <!-- Amount Paid -->
+        <TextView
+            android:id="@+id/tvAmountPaid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="₹15000 paid"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1E88E5"
+            android:layout_marginTop="12dp"
+            android:gravity="end" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:id="@+id/actionButtonsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btnReject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reject"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#F44336"
+                android:layout_marginEnd="12dp"
+                android:paddingHorizontal="20dp"
+                android:textSize="14sp"
+                style="@style/Widget.MaterialComponents.Button" />
+
+            <Button
+                android:id="@+id/btnApprove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Approve"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#4CAF50"
+                android:paddingHorizontal="20dp"
+                android:textSize="14sp"
+                style="@style/Widget.MaterialComponents.Button" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

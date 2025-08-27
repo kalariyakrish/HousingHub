@@ -256,6 +256,15 @@ class BookingManager(private val context: Context) {
         return try {
             Log.d(TAG, "Cancelling booking: $bookingId")
             
+            // First get the booking details to check if property needs to be made available again
+            val bookingDoc = firestore.collection(COLLECTION_BOOKINGS)
+                .document(bookingId)
+                .get()
+                .await()
+            
+            val booking = bookingDoc.toObject(Booking::class.java)
+                ?: return Result.failure(Exception("Booking not found"))
+            
             val updates = mapOf(
                 "bookingStatus" to Booking.STATUS_CANCELLED,
                 "cancellationReason" to reason,
@@ -267,11 +276,213 @@ class BookingManager(private val context: Context) {
                 .update(updates)
                 .await()
             
+            // If booking was approved, transfer property back to Available
+            if (booking.bookingStatus == Booking.STATUS_APPROVED) {
+                transferPropertyToAvailable(booking.ownerEmail, booking.propertyId)
+                Log.d(TAG, "Property transferred back to Available due to cancellation")
+            }
+            
             Log.d(TAG, "Booking cancelled successfully: $bookingId")
             Result.success(Unit)
             
         } catch (e: Exception) {
             Log.e(TAG, "Error cancelling booking: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Approve a booking by owner
+     */
+    suspend fun approveBooking(bookingId: String): Result<Unit> {
+        return try {
+            Log.d(TAG, "Approving booking: $bookingId")
+            
+            // First get the booking details to access property information
+            val bookingDoc = firestore.collection(COLLECTION_BOOKINGS)
+                .document(bookingId)
+                .get()
+                .await()
+            
+            val booking = bookingDoc.toObject(Booking::class.java)
+                ?: return Result.failure(Exception("Booking not found"))
+            
+            // Update booking status
+            val bookingUpdates = mapOf(
+                "bookingStatus" to Booking.STATUS_APPROVED,
+                "approvedAt" to Timestamp.now(),
+                "updatedAt" to Timestamp.now()
+            )
+            
+            firestore.collection(COLLECTION_BOOKINGS)
+                .document(bookingId)
+                .update(bookingUpdates)
+                .await()
+            
+            // Transfer property from Available to Unavailable collection
+            transferPropertyToUnavailable(booking.ownerEmail, booking.propertyId)
+            
+            Log.d(TAG, "Booking approved successfully: $bookingId and property transferred to unavailable")
+            Result.success(Unit)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error approving booking: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Transfer property from Available to Unavailable collection
+     */
+    private suspend fun transferPropertyToUnavailable(ownerEmail: String, propertyId: String) {
+        try {
+            Log.d(TAG, "Transferring property $propertyId from Available to Unavailable for owner $ownerEmail")
+            
+            // References to source and destination
+            val sourceRef = firestore.collection("Properties")
+                .document(ownerEmail)
+                .collection("Available")
+                .document(propertyId)
+            
+            val destRef = firestore.collection("Properties")
+                .document(ownerEmail)
+                .collection("Unavailable")
+                .document(propertyId)
+            
+            // Use transaction to ensure atomicity
+            firestore.runTransaction { transaction ->
+                // Get property from Available collection
+                val propertyDoc = transaction.get(sourceRef)
+                if (!propertyDoc.exists()) {
+                    throw Exception("Property not found in Available collection")
+                }
+                
+                // Get property data and update availability status
+                val propertyData = propertyDoc.data?.toMutableMap() 
+                    ?: throw Exception("Invalid property data")
+                
+                propertyData["isAvailable"] = false
+                propertyData["updatedAt"] = Timestamp.now()
+                
+                // Move to Unavailable collection
+                transaction.set(destRef, propertyData)
+                
+                // Remove from Available collection
+                transaction.delete(sourceRef)
+                
+                Log.d(TAG, "Property $propertyId successfully transferred to Unavailable collection")
+            }.await()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error transferring property to unavailable: ${e.message}", e)
+            // Don't fail the booking approval if property transfer fails
+            // Just log the error - the booking is still approved
+        }
+    }
+    
+    /**
+     * Transfer property from Unavailable back to Available collection
+     */
+    private suspend fun transferPropertyToAvailable(ownerEmail: String, propertyId: String) {
+        try {
+            Log.d(TAG, "Transferring property $propertyId from Unavailable to Available for owner $ownerEmail")
+            
+            // References to source and destination
+            val sourceRef = firestore.collection("Properties")
+                .document(ownerEmail)
+                .collection("Unavailable")
+                .document(propertyId)
+            
+            val destRef = firestore.collection("Properties")
+                .document(ownerEmail)
+                .collection("Available")
+                .document(propertyId)
+            
+            // Use transaction to ensure atomicity
+            firestore.runTransaction { transaction ->
+                // Get property from Unavailable collection
+                val propertyDoc = transaction.get(sourceRef)
+                if (!propertyDoc.exists()) {
+                    throw Exception("Property not found in Unavailable collection")
+                }
+                
+                // Get property data and update availability status
+                val propertyData = propertyDoc.data?.toMutableMap() 
+                    ?: throw Exception("Invalid property data")
+                
+                propertyData["isAvailable"] = true
+                propertyData["updatedAt"] = Timestamp.now()
+                
+                // Move to Available collection
+                transaction.set(destRef, propertyData)
+                
+                // Remove from Unavailable collection
+                transaction.delete(sourceRef)
+                
+                Log.d(TAG, "Property $propertyId successfully transferred to Available collection")
+            }.await()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error transferring property to available: ${e.message}", e)
+            // Don't fail the booking cancellation if property transfer fails
+        }
+    }
+    
+    /**
+     * Reject a booking by owner
+     */
+    suspend fun rejectBooking(bookingId: String, reason: String): Result<Unit> {
+        return try {
+            Log.d(TAG, "Rejecting booking: $bookingId")
+            
+            val updates = mapOf(
+                "bookingStatus" to Booking.STATUS_REJECTED,
+                "rejectionReason" to reason,
+                "rejectedAt" to Timestamp.now(),
+                "updatedAt" to Timestamp.now()
+            )
+            
+            firestore.collection(COLLECTION_BOOKINGS)
+                .document(bookingId)
+                .update(updates)
+                .await()
+            
+            Log.d(TAG, "Booking rejected successfully: $bookingId")
+            Result.success(Unit)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error rejecting booking: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get pending bookings for owner (bookings that need approval)
+     */
+    suspend fun getOwnerPendingBookings(): Result<List<Booking>> {
+        return try {
+            val ownerEmail = userSessionManager.getEmail()
+            if (ownerEmail.isEmpty()) {
+                return Result.failure(Exception("User not logged in"))
+            }
+            
+            val querySnapshot = firestore.collection(COLLECTION_BOOKINGS)
+                .whereEqualTo("ownerEmail", ownerEmail)
+                .whereEqualTo("bookingStatus", Booking.STATUS_CONFIRMED)
+                .get()
+                .await()
+            
+            val bookings = querySnapshot.documents.mapNotNull { doc ->
+                doc.toObject(Booking::class.java)?.apply {
+                    id = doc.id
+                }
+            }
+            
+            Log.d(TAG, "Retrieved ${bookings.size} pending bookings for owner: $ownerEmail")
+            Result.success(bookings)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error retrieving pending bookings: ${e.message}", e)
             Result.failure(e)
         }
     }
