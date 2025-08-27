@@ -12,13 +12,18 @@
     <color name="green_500">#4CAF50</color>
     <color name="red_500">#F44336</color>
     <color name="gray_700">#505050</color>
+    <color name="gray_600">#757575</color>
+    <color name="gray_500">#9E9E9E</color>
+    <color name="gray_400">#BDBDBD</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_200">#EEEEEE</color>
+    <color name="gray_100">#F5F5F5</color>
     <color name="nav_selected">#1E88E5</color>     <!-- Blue color for selected item -->
     <color name="nav_unselected">#808080</color>   <!-- Gray color for unselected items -->
-
+    <color name="card_background">#FFFFFF</color>
+    <color name="surface_color">#FAFAFA</color>
+    <color name="divider_color">#E1E1E1</color>
 
     <color name="ic_launcher_background">#FFFFFF</color> <!-- You can change it -->
-
-
-
 
 </resources>

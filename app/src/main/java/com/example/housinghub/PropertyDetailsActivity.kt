@@ -5,20 +5,23 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.LinearSnapHelper
-import android.widget.ImageView
-import android.widget.ImageButton
+import com.example.housinghub.adapters.PropertyImageCarouselAdapter
 import com.example.housinghub.model.Property
-import com.google.firebase.firestore.FirebaseFirestore
-import com.example.housinghub.adapters.ImageSliderAdapter
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.firestore.FirebaseFirestore
+import com.bumptech.glide.Glide
 
 class PropertyDetailsActivity : AppCompatActivity() {
 
@@ -36,54 +39,100 @@ class PropertyDetailsActivity : AppCompatActivity() {
 
     private var property: Property? = null
 
-    // Views
+    // Enhanced Views
     private lateinit var recyclerImages: RecyclerView
-    private lateinit var btnMessage: Button
-    private lateinit var btnBook: Button
+    private lateinit var tvImageCount: TextView
+    private lateinit var fabBookmark: FloatingActionButton
+    private lateinit var btnMessage: MaterialButton
+    private lateinit var btnBook: MaterialButton
     private lateinit var tvTitle: TextView
     private lateinit var tvType: TextView
     private lateinit var tvAddress: TextView
     private lateinit var tvPrice: TextView
+    private lateinit var chipAvailability: Chip
     private lateinit var layoutBeds: LinearLayout
     private lateinit var layoutBaths: LinearLayout
+    private lateinit var layoutArea: LinearLayout
     private lateinit var tvBedrooms: TextView
     private lateinit var tvBathrooms: TextView
+    private lateinit var tvArea: TextView
     private lateinit var tvDescription: TextView
+    private lateinit var tvOwnerInitials: TextView
+    private lateinit var tvOwnerName: TextView
+    private lateinit var tvOwnerType: TextView
+    private lateinit var btnCallOwner: ImageButton
     private lateinit var layoutVideos: androidx.cardview.widget.CardView
     private lateinit var tvVideoLink: TextView
     private lateinit var ivVideoPreview: ImageView
     private lateinit var btnPlayVideo: ImageButton
 
     private val firestore = FirebaseFirestore.getInstance()
+    private var currentImagePosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_property_details)
 
-    // init views
-    val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-    recyclerImages = findViewById(R.id.recyclerImages)
-    btnMessage = findViewById(R.id.btnMessage)
-    btnBook = findViewById(R.id.btnBook)
-    tvTitle = findViewById(R.id.tvTitle)
-    tvType = findViewById(R.id.tvType)
-    tvAddress = findViewById(R.id.tvAddress)
-    tvPrice = findViewById(R.id.tvPrice)
-    layoutBeds = findViewById(R.id.layoutBeds)
-    layoutBaths = findViewById(R.id.layoutBaths)
-    tvBedrooms = findViewById(R.id.tvBedrooms)
-    tvBathrooms = findViewById(R.id.tvBathrooms)
-    tvDescription = findViewById(R.id.tvDescription)
-    layoutVideos = findViewById(R.id.layoutVideos)
-    tvVideoLink = findViewById(R.id.tvVideoLink)
-    ivVideoPreview = findViewById(R.id.ivVideoPreview)
-    btnPlayVideo = findViewById(R.id.btnPlayVideo)
-    val progressOverlay = findViewById<View>(R.id.progressOverlay)
+        initializeViews()
+        setupToolbar()
+        setupClickListeners()
+        loadPropertyData()
+    }
 
-    setSupportActionBar(toolbar)
-    supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    toolbar.setNavigationOnClickListener { onBackPressed() }
+    private fun initializeViews() {
+        recyclerImages = findViewById(R.id.recyclerImages)
+        tvImageCount = findViewById(R.id.tvImageCount)
+        fabBookmark = findViewById(R.id.fabBookmark)
+        btnMessage = findViewById(R.id.btnMessage)
+        btnBook = findViewById(R.id.btnBook)
+        tvTitle = findViewById(R.id.tvTitle)
+        tvType = findViewById(R.id.tvType)
+        tvAddress = findViewById(R.id.tvAddress)
+        tvPrice = findViewById(R.id.tvPrice)
+        chipAvailability = findViewById(R.id.chipAvailability)
+        layoutBeds = findViewById(R.id.layoutBeds)
+        layoutBaths = findViewById(R.id.layoutBaths)
+        layoutArea = findViewById(R.id.layoutArea)
+        tvBedrooms = findViewById(R.id.tvBedrooms)
+        tvBathrooms = findViewById(R.id.tvBathrooms)
+        tvArea = findViewById(R.id.tvArea)
+        tvDescription = findViewById(R.id.tvDescription)
+        tvOwnerInitials = findViewById(R.id.tvOwnerInitials)
+        tvOwnerName = findViewById(R.id.tvOwnerName)
+        tvOwnerType = findViewById(R.id.tvOwnerType)
+        btnCallOwner = findViewById(R.id.btnCallOwner)
+        layoutVideos = findViewById(R.id.layoutVideos)
+        tvVideoLink = findViewById(R.id.tvVideoLink)
+        ivVideoPreview = findViewById(R.id.ivVideoPreview)
+        btnPlayVideo = findViewById(R.id.btnPlayVideo)
+    }
 
+    private fun setupToolbar() {
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener { onBackPressed() }
+    }
+
+    private fun setupClickListeners() {
+        fabBookmark.setOnClickListener {
+            toggleBookmark()
+        }
+
+        btnMessage.setOnClickListener {
+            openMessageScreen()
+        }
+
+        btnBook.setOnClickListener {
+            bookProperty()
+        }
+
+        btnCallOwner.setOnClickListener {
+            callOwner()
+        }
+    }
+
+    private fun loadPropertyData() {
         val ownerId = intent.getStringExtra(EXTRA_OWNER)
         val propertyId = intent.getStringExtra(EXTRA_PROPERTY_ID)
 
@@ -93,101 +142,259 @@ class PropertyDetailsActivity : AppCompatActivity() {
             return
         }
 
-        // Fetch property document from Firestore
-        progressOverlay.visibility = View.VISIBLE
+        showLoading(true)
+        
         firestore.collection("Properties")
             .document(ownerId)
             .collection("Available")
             .document(propertyId)
             .get()
             .addOnSuccessListener { doc ->
-                progressOverlay.visibility = View.GONE
+                showLoading(false)
                 val p = doc.toObject(Property::class.java)
                 if (p != null) {
                     p.id = doc.id
                     p.ownerId = ownerId
+                    this.property = p
                     bindProperty(p)
-                    toolbar.title = p.title
+                    loadOwnerInfo(ownerId)
                 } else {
                     Toast.makeText(this, "Property not found", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
             .addOnFailureListener { e ->
-                progressOverlay.visibility = View.GONE
+                showLoading(false)
                 Toast.makeText(this, "Failed to load property: ${e.message}", Toast.LENGTH_SHORT).show()
                 finish()
             }
-
-        btnMessage.setOnClickListener {
-            Toast.makeText(this, "Message clicked", Toast.LENGTH_SHORT).show()
-        }
-
-        btnBook.setOnClickListener {
-            Toast.makeText(this, "Book clicked", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun bindProperty(p: Property) {
+        // Basic property information
         tvTitle.text = p.title
         tvType.text = p.type
-        tvAddress.text = p.address
-        tvPrice.text = "\u20b9${p.price}"
+        tvAddress.text = if (p.location.isNotEmpty()) p.location else p.address
+        tvPrice.text = "₹${String.format("%.0f", p.price)}"
 
-        val bedrooms = try {
-            Regex("(\\d+)").find(p.type)?.value
-        } catch (e: Exception) { null }
+        // Availability status
+        if (p.isAvailable) {
+            chipAvailability.text = "Available"
+            chipAvailability.setChipBackgroundColorResource(R.color.primary_green)
+        } else {
+            chipAvailability.text = "Not Available"
+            chipAvailability.setChipBackgroundColorResource(R.color.red_500)
+        }
 
-        if (!bedrooms.isNullOrEmpty()) {
+        // Property features
+        setupPropertyFeatures(p)
+
+        // Description
+        tvDescription.text = if (p.description.isNotEmpty()) p.description else "No description available"
+
+        // Setup image carousel
+        setupImageCarousel(p.images)
+
+        // Setup video section
+        setupVideoSection(p.videos)
+
+        // Bookmark status
+        updateBookmarkIcon(p.isBookmarked)
+    }
+
+    private fun setupPropertyFeatures(p: Property) {
+        // Extract bedroom count from type
+        val bedrooms = extractBedrooms(p.type)
+        if (bedrooms != null) {
             tvBedrooms.text = bedrooms
             layoutBeds.visibility = View.VISIBLE
         } else {
             layoutBeds.visibility = View.GONE
         }
 
-        val bathrooms = try {
-            Regex("(\\d+)\\s*bath", RegexOption.IGNORE_CASE).find(p.description)?.groupValues?.get(1)
-        } catch (e: Exception) { null }
-
-        if (!bathrooms.isNullOrEmpty()) {
+        // Extract bathroom count from description
+        val bathrooms = extractBathrooms(p.description)
+        if (bathrooms != null) {
             tvBathrooms.text = bathrooms
             layoutBaths.visibility = View.VISIBLE
         } else {
             layoutBaths.visibility = View.GONE
         }
 
-        tvDescription.text = p.description
+        // For now, show a default area - this should ideally be in the Property model
+        tvArea.text = "1200"
+        layoutArea.visibility = View.VISIBLE
+    }
 
-        val imageAdapter = ImageSliderAdapter(
-            onImageClick = { _ -> /* optional full-screen */ },
-            onDeleteClick = { /* no-op in details */ }
-        )
+    private fun extractBedrooms(type: String): String? {
+        return try {
+            Regex("(\\d+)").find(type)?.value
+        } catch (e: Exception) { null }
+    }
+
+    private fun extractBathrooms(description: String): String? {
+        return try {
+            Regex("(\\d+)\\s*bath", RegexOption.IGNORE_CASE).find(description)?.groupValues?.get(1)
+        } catch (e: Exception) { null }
+    }
+
+    private fun setupImageCarousel(images: List<String>) {
+        if (images.isEmpty()) {
+            tvImageCount.text = "0/0"
+            return
+        }
+
+        val imageAdapter = PropertyImageCarouselAdapter { position ->
+            // Handle image click - could open full screen gallery
+            Toast.makeText(this, "Image ${position + 1} clicked", Toast.LENGTH_SHORT).show()
+        }
 
         recyclerImages.apply {
             layoutManager = LinearLayoutManager(this@PropertyDetailsActivity, LinearLayoutManager.HORIZONTAL, false)
             adapter = imageAdapter
         }
-        // Add snap helper for nicer paging feel
-        LinearSnapHelper().attachToRecyclerView(recyclerImages)
 
-        imageAdapter.submitList(p.images)
+        // Add snap helper for better scrolling experience
+        PagerSnapHelper().attachToRecyclerView(recyclerImages)
 
-        if (!p.videos.isNullOrEmpty()) {
-            layoutVideos.visibility = View.VISIBLE
-            val videoUrl = p.videos[0]
-            // show a thumbnail in ivVideoPreview if available (first image as fallback)
-            if (!p.images.isNullOrEmpty()) {
-                val thumb = p.images[0]
-                com.bumptech.glide.Glide.with(this).load(thumb).centerCrop().into(ivVideoPreview)
+        // Add scroll listener to update image count
+        recyclerImages.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val position = layoutManager.findFirstVisibleItemPosition()
+                if (position >= 0) {
+                    currentImagePosition = position
+                    tvImageCount.text = "${position + 1}/${images.size}"
+                }
             }
+        })
 
-            btnPlayVideo.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(Uri.parse(videoUrl), "video/*")
-                startActivity(intent)
-            }
-        } else {
+        imageAdapter.submitList(images)
+        tvImageCount.text = "1/${images.size}"
+    }
+
+    private fun setupVideoSection(videos: List<String>) {
+        if (videos.isNullOrEmpty()) {
             layoutVideos.visibility = View.GONE
+            return
         }
+
+        layoutVideos.visibility = View.VISIBLE
+        val videoUrl = videos[0]
+
+        // Load video thumbnail if available (use first image as fallback)
+        property?.let { p ->
+            if (p.images.isNotEmpty()) {
+                Glide.with(this)
+                    .load(p.images[0])
+                    .centerCrop()
+                    .into(ivVideoPreview)
+            }
+        }
+
+        btnPlayVideo.setOnClickListener {
+            playVideo(videoUrl)
+        }
+    }
+
+    private fun loadOwnerInfo(ownerId: String) {
+        firestore.collection("Owners")
+            .document(ownerId)
+            .get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    val ownerName = doc.getString("fullName") ?: "Property Owner"
+                    val ownerInitials = getInitials(ownerName)
+                    
+                    tvOwnerName.text = ownerName
+                    tvOwnerInitials.text = ownerInitials
+                    tvOwnerType.text = "Property Owner"
+                } else {
+                    // Fallback to email-based name
+                    val emailName = ownerId.substringBefore("@").replace(".", " ").split(" ")
+                        .joinToString(" ") { it.replaceFirstChar { char -> char.uppercaseChar() } }
+                    tvOwnerName.text = emailName
+                    tvOwnerInitials.text = getInitials(emailName)
+                    tvOwnerType.text = "Property Owner"
+                }
+            }
+            .addOnFailureListener {
+                tvOwnerName.text = "Property Owner"
+                tvOwnerInitials.text = "PO"
+                tvOwnerType.text = "Property Owner"
+            }
+    }
+
+    private fun getInitials(name: String): String {
+        return name.split(" ")
+            .filter { it.isNotEmpty() }
+            .take(2)
+            .map { it.first().uppercaseChar() }
+            .joinToString("")
+            .ifEmpty { "PO" }
+    }
+
+    private fun toggleBookmark() {
+        property?.let { p ->
+            p.isBookmarked = !p.isBookmarked
+            updateBookmarkIcon(p.isBookmarked)
+            
+            val message = if (p.isBookmarked) "Added to bookmarks" else "Removed from bookmarks"
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateBookmarkIcon(isBookmarked: Boolean) {
+        val iconRes = if (isBookmarked) {
+            android.R.drawable.btn_star_big_on
+        } else {
+            android.R.drawable.btn_star_big_off
+        }
+        fabBookmark.setImageResource(iconRes)
+    }
+
+    private fun openMessageScreen() {
+        property?.let { p ->
+            Toast.makeText(this, "Opening chat with ${p.ownerId}", Toast.LENGTH_SHORT).show()
+            // TODO: Implement actual messaging functionality
+        }
+    }
+
+    private fun bookProperty() {
+        property?.let { p ->
+            if (p.isAvailable) {
+                Toast.makeText(this, "Booking request sent for ${p.title}", Toast.LENGTH_SHORT).show()
+                // TODO: Implement actual booking functionality
+            } else {
+                Toast.makeText(this, "This property is not available for booking", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun callOwner() {
+        property?.let { p ->
+            Toast.makeText(this, "Calling owner for ${p.title}", Toast.LENGTH_SHORT).show()
+            // TODO: Implement actual calling functionality
+            // val intent = Intent(Intent.ACTION_CALL).apply {
+            //     data = Uri.parse("tel:$ownerPhoneNumber")
+            // }
+            // startActivity(intent)
+        }
+    }
+
+    private fun playVideo(videoUrl: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(Uri.parse(videoUrl), "video/*")
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Cannot play video: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showLoading(show: Boolean) {
+        findViewById<View>(R.id.progressOverlay).visibility = if (show) View.VISIBLE else View.GONE
     }
 }

@@ -1,191 +1,499 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#F5F5F5">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <!-- Enhanced App Bar with Gradient Background -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/white"
-        app:titleTextColor="@color/black"
-        app:navigationIconTint="@color/black"
-        app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light" />
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-    <ScrollView
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/white"
+            app:title="Property Details"
+            app:titleTextColor="@color/black"
+            app:navigationIconTint="@color/black"
+            app:elevation="4dp" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Enhanced Nested Scroll View -->
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <!-- Prominent banner carousel (tenant view) -->
-            <androidx.cardview.widget.CardView
+            <!-- Enhanced Image Carousel with Indicators -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="6dp">
+                android:layout_height="280dp">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerImages"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
-                    android:overScrollMode="never"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"
-                    android:scrollbars="horizontal" />
+                    android:overScrollMode="never" />
 
-            </androidx.cardview.widget.CardView>
-
-            <!-- Title / meta -->
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:layout_marginTop="12dp"
-                android:textColor="@color/black" />
-
-            <TextView
-                android:id="@+id/tvType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textColor="@color/gray_700"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:id="@+id/tvAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textColor="@color/gray_700"
-                android:layout_marginTop="8dp" />
-
-            <!-- Price and quick stats -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical">
-
+                <!-- Image Count Indicator -->
                 <TextView
-                    android:id="@+id/tvPrice"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black" />
-
-                <LinearLayout
+                    android:id="@+id/tvImageCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="16dp"
+                    android:background="@drawable/rounded_translucent_bg"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:text="1/5"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
-                    <LinearLayout
-                        android:id="@+id/layoutBeds"
-                        android:layout_width="wrap_content"
+                <!-- Bookmark Button -->
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabBookmark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="16dp"
+                    android:backgroundTint="@color/white"
+                    android:src="@android:drawable/btn_star_big_off"
+                    app:fabSize="mini"
+                    app:tint="@color/red_500" />
+
+            </FrameLayout>
+
+            <!-- Property Information Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Property Title & Type -->
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="8dp"
-                        android:gravity="center">
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:lineSpacingExtra="2dp"
+                        tools:text="Beautiful 2BHK Apartment" />
+
+                    <TextView
+                        android:id="@+id/tvType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/nav_selected"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        tools:text="2BHK Apartment" />
+
+                    <!-- Address with Icon -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@android:drawable/ic_dialog_map"
+                            app:tint="@color/gray_700" />
+
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:id="@+id/tvAddress"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Beds"
-                            android:textSize="12sp"
-                            android:textColor="@color/gray_700" />
-                        <TextView
-                            android:id="@+id/tvBedrooms"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/gray_700"
                             android:textSize="14sp"
-                            android:textStyle="bold" />
+                            tools:text="123 Main Street, City, State" />
+
                     </LinearLayout>
 
+                    <!-- Price and Status -->
                     <LinearLayout
-                        android:id="@+id/layoutBaths"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="8dp"
-                        android:gravity="center">
-                        <TextView
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Monthly Rent"
+                                android:textColor="@color/gray_700"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/tvPrice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="@color/primary_green"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="₹25,000" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipAvailability"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Baths"
-                            android:textSize="12sp"
-                            android:textColor="@color/gray_700" />
-                        <TextView
-                            android:id="@+id/tvBathrooms"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
+                            android:text="Available"
+                            android:textColor="@color/white"
+                            app:chipBackgroundColor="@color/primary_green"
+                            app:chipCornerRadius="20dp" />
+
                     </LinearLayout>
 
                 </LinearLayout>
 
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Description -->
-            <TextView
+            <!-- Property Features Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Description"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp" />
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
 
-            <TextView
-                android:id="@+id/tvDescription"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Features"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Features Grid -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/layoutBeds"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/rounded_box"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@android:drawable/ic_menu_gallery"
+                                app:tint="@color/nav_selected" />
+
+                            <TextView
+                                android:id="@+id/tvBedrooms"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:textColor="@color/black"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                tools:text="2" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Bedrooms"
+                                android:textColor="@color/gray_700"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutBaths"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:background="@drawable/rounded_box"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@android:drawable/ic_dialog_info"
+                                app:tint="@color/nav_selected" />
+
+                            <TextView
+                                android:id="@+id/tvBathrooms"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:textColor="@color/black"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                tools:text="2" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Bathrooms"
+                                android:textColor="@color/gray_700"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutArea"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:background="@drawable/rounded_box"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@android:drawable/ic_dialog_map"
+                                app:tint="@color/nav_selected" />
+
+                            <TextView
+                                android:id="@+id/tvArea"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="1200"
+                                android:textColor="@color/black"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Sq.ft"
+                                android:textColor="@color/gray_700"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Property Description Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:textColor="@color/gray_700" />
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
 
-            <!-- Video card with play button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Description"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="4dp"
+                        android:textColor="@color/gray_700"
+                        android:textSize="14sp"
+                        tools:text="This beautiful apartment offers modern amenities and is located in a prime area with easy access to public transportation." />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Owner Information Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOwnerInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Property Owner"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvOwnerInitials"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/profile_circle_bg"
+                            android:gravity="center"
+                            android:text="PP"
+                            android:textColor="@color/white"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvOwnerName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Property Owner"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvOwnerType"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Property Owner"
+                                android:textColor="@color/gray_700"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <ImageButton
+                            android:id="@+id/btnCallOwner"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/rounded_button"
+                            android:src="@android:drawable/ic_menu_call"
+                            app:tint="@color/white" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Video Section -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/layoutVideos"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="200dp"
+                android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="4dp"
-                android:visibility="gone">
+                android:visibility="gone"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/nav_selected">
+                    android:layout_height="match_parent">
 
                     <ImageView
                         android:id="@+id/ivVideoPreview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:contentDescription="Video preview" />
+                        android:contentDescription="Video preview"
+                        android:scaleType="centerCrop" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/rounded_translucent_bg" />
 
                     <ImageButton
                         android:id="@+id/btnPlayVideo"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
                         android:layout_gravity="center"
-                        android:backgroundTint="@android:color/transparent"
-                        android:src="@android:drawable/ic_media_play"
+                        android:background="@drawable/rounded_button"
+                        android:src="@drawable/ic_play"
                         app:tint="@color/white" />
 
                     <TextView
@@ -193,79 +501,105 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|start"
-                        android:layout_margin="12dp"
-                        android:text="Play Video"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
+                        android:layout_margin="16dp"
                         android:background="@drawable/rounded_translucent_bg"
-                        android:paddingLeft="8dp"
-                        android:paddingRight="8dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp" />
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="8dp"
+                        android:text="Property Video Tour"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                 </FrameLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <View android:layout_height="96dp" android:layout_width="match_parent" />
+            <!-- Bottom Spacer for FAB -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp" />
 
         </LinearLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- Floating bottom actions -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- Enhanced Floating Action Buttons -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_margin="12dp"
-        android:layout_marginBottom="20dp"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="6dp"
-        android:clickable="false"
-        android:focusable="false">
+        android:layout_margin="16dp"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:padding="10dp"
-            android:gravity="center_vertical">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMessage"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/white"
+            android:text="Message"
+            android:textColor="@color/nav_selected"
+            app:cornerRadius="28dp"
+            app:icon="@android:drawable/ic_dialog_email"
+            app:iconTint="@color/nav_selected"
+            app:strokeColor="@color/nav_selected"
+            app:strokeWidth="2dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
-            <Button
-                android:id="@+id/btnMessage"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="Message"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_marginEnd="8dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBook"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/nav_selected"
+            android:text="Book Now"
+            android:textColor="@color/white"
+            app:cornerRadius="28dp"
+            app:icon="@android:drawable/ic_menu_save"
+            app:iconTint="@color/white" />
 
-            <Button
-                android:id="@+id/btnBook"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="Book"
-                style="@style/Widget.MaterialComponents.Button" />
+    </LinearLayout>
 
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Progress overlay -->
+    <!-- Enhanced Progress Overlay -->
     <FrameLayout
         android:id="@+id/progressOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:background="#80000000"
-        android:foregroundGravity="center">
+        android:visibility="gone">
 
-        <ProgressBar
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center" />
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <ProgressBar
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:indeterminateTint="@color/nav_selected" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Loading..."
+                    android:textColor="@color/gray_700"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
     </FrameLayout>
 
