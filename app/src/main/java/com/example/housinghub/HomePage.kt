@@ -8,7 +8,7 @@ import com.example.housinghub.ui.profile.ProfileFragment
 
 class HomePageActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityHomePageBinding
+    lateinit var binding: ActivityHomePageBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

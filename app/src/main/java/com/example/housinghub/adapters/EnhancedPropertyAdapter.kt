@@ -87,9 +87,9 @@ class EnhancedPropertyAdapter(
 
         private fun updateBookmarkIcon(isBookmarked: Boolean) {
             val iconRes = if (isBookmarked) {
-                android.R.drawable.btn_star_big_on
+                R.drawable.ic_bookmark_filled
             } else {
-                android.R.drawable.btn_star_big_off
+                R.drawable.ic_bookmark_border
             }
             binding.bookmarkIcon.setImageResource(iconRes)
         }
@@ -114,10 +114,9 @@ class EnhancedPropertyAdapter(
             binding.bookmarkIcon.setOnClickListener {
                 val pos = adapterPosition
                 if (pos != RecyclerView.NO_POSITION) {
-                    property.isBookmarked = !property.isBookmarked
-                    sharedViewModel?.toggleBookmark(property)
+                    // Only notify the listener, don't handle the toggle here
+                    // The fragment/activity will handle the actual toggle
                     interactionListener?.onBookmarkClicked(property, pos)
-                    updateBookmarkIcon(property.isBookmarked)
                 }
             }
 

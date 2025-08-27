@@ -65,7 +65,7 @@ class HomeFragment : Fragment(), PropertyInteractionListener {
     }
 
     private fun setupUI() {
-        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+        sharedViewModel = ViewModelProvider(requireActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application))[SharedViewModel::class.java]
 
         // Setup Enhanced RecyclerView with Linear Layout
         propertyAdapter = EnhancedPropertyAdapter(sharedViewModel, this)
@@ -209,6 +209,10 @@ class HomeFragment : Fragment(), PropertyInteractionListener {
                 )
 
                 allProperties = sortedProperties
+                
+                // Check bookmark status for loaded properties
+                checkBookmarkStatus(sortedProperties)
+                
                 applyFilters()
                 updatePropertyCount(sortedProperties.size)
                 showLoading(false)
@@ -222,6 +226,16 @@ class HomeFragment : Fragment(), PropertyInteractionListener {
                 showLoading(false)
                 showEmptyState(true)
             }
+    }
+    
+    private fun checkBookmarkStatus(properties: List<Property>) {
+        // Update bookmark status for properties using BookmarkManager
+        sharedViewModel.updatePropertiesBookmarkStatus(properties) { updatedProperties ->
+            // Update the allProperties list with updated bookmark states
+            allProperties = updatedProperties
+            // Refresh the displayed list
+            applyFilters()
+        }
     }
 
     private fun filterProperties(query: String) {
@@ -268,11 +282,20 @@ class HomeFragment : Fragment(), PropertyInteractionListener {
     }
 
     override fun onBookmarkClicked(property: Property, position: Int) {
-        property.isBookmarked = !property.isBookmarked
-        sharedViewModel.toggleBookmark(property)
-        
-        val message = if (property.isBookmarked) "Added to bookmarks" else "Removed from bookmarks"
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        sharedViewModel.toggleBookmark(property) { isBookmarked ->
+            val message = if (isBookmarked) "Added to bookmarks" else "Removed from bookmarks"
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            
+            // Update the property's bookmark state
+            property.isBookmarked = isBookmarked
+            
+            // Find and update the property in the lists
+            allProperties.find { it.id == property.id }?.isBookmarked = isBookmarked
+            filteredProperties.find { it.id == property.id }?.isBookmarked = isBookmarked
+            
+            // Update the adapter to reflect the change
+            propertyAdapter.notifyItemChanged(position)
+        }
     }
 
     override fun onViewDetailsClicked(property: Property) {
