@@ -11,9 +11,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.housinghub.managers.ChatManager
+import com.example.housinghub.utils.UserSessionManager
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import com.example.housinghub.adapters.PropertyImageCarouselAdapter
 import com.example.housinghub.model.Property
 import com.google.android.material.appbar.MaterialToolbar
@@ -349,8 +354,54 @@ class PropertyDetailsActivity : AppCompatActivity() {
 
     private fun openMessageScreen() {
         property?.let { p ->
-            Toast.makeText(this, "Opening chat with ${p.ownerId}", Toast.LENGTH_SHORT).show()
-            // TODO: Implement actual messaging functionality
+            lifecycleScope.launch {
+                try {
+                    val userSessionManager = UserSessionManager(this@PropertyDetailsActivity)
+                    val tenantEmail = userSessionManager.getEmail()
+                    val tenantName = userSessionManager.getFullName()
+                    
+                    if (tenantEmail.isEmpty()) {
+                        Toast.makeText(this@PropertyDetailsActivity, "Please login to chat", Toast.LENGTH_SHORT).show()
+                        return@launch
+                    }
+                    
+                    // Get owner email from property data
+                    val ownerEmail = p.ownerId
+                    
+                    // Fetch owner name from Firestore
+                    val ownerDoc = firestore.collection("Owners").document(ownerEmail).get().await()
+                    val ownerName = if (ownerDoc.exists()) {
+                        ownerDoc.getString("fullName") ?: "Property Owner"
+                    } else {
+                        "Property Owner"
+                    }
+                    
+                    val chatManager = ChatManager(this@PropertyDetailsActivity)
+                    val result = chatManager.createOrGetChat(
+                        tenantEmail = tenantEmail,
+                        tenantName = tenantName,
+                        ownerEmail = ownerEmail,
+                        ownerName = ownerName,
+                        propertyId = p.id,
+                        propertyTitle = p.title,
+                        propertyLocation = p.location.ifEmpty { p.address }
+                    )
+                    
+                    if (result.isSuccess) {
+                        val chat = result.getOrNull()!!
+                        val intent = Intent(this@PropertyDetailsActivity, ChatActivity::class.java)
+                        intent.putExtra("chatId", chat.id)
+                        intent.putExtra("chatName", ownerName)
+                        intent.putExtra("propertyTitle", p.title)
+                        intent.putExtra("isOwnerView", false)
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this@PropertyDetailsActivity, "Failed to start chat: ${result.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(this@PropertyDetailsActivity, "Error starting chat: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

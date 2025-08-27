@@ -158,7 +158,7 @@ class SignUpPage : AppCompatActivity() {
                             .addOnSuccessListener {
                                 // Save to session
                                 val sessionManager = UserSessionManager(this)
-                                sessionManager.saveUserData(fullName, email, mobile)
+                                sessionManager.saveUserData(fullName, email, mobile, selectedRole)
 
                                 // Handle owner-specific Firestore setup
                                 if (selectedRole == "owner") {
@@ -291,7 +291,7 @@ class SignUpPage : AppCompatActivity() {
                                 val bedrooms: Int? = null,
                             )
                             val sessionManager = UserSessionManager(this)
-                            sessionManager.saveUserData(user.displayName ?: "", userEmail, user.phoneNumber ?: "")
+                            sessionManager.saveUserData(user.displayName ?: "", userEmail, user.phoneNumber ?: "", selectedRole)
 
                             // Handle owner-specific setup
                             if (selectedRole == "owner") {

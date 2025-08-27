@@ -29,5 +29,7 @@ data class Property(
     var timestamp: String = "",
     var propertyName: String = "",
     var rating: Double? = null
+
 )
-: Serializable
+: Serializable {
+}

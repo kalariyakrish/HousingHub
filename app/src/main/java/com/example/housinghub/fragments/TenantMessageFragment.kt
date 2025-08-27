@@ -1,4 +1,4 @@
-package com.example.housinghub.owner
+package com.example.housinghub.fragments
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,19 +12,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.housinghub.ChatActivity
 import com.example.housinghub.adapters.ChatListAdapter
-import com.example.housinghub.databinding.FragmentOwnerMessagesBinding
+import com.example.housinghub.databinding.FragmentMessagesBinding
 import com.example.housinghub.managers.ChatManager
 import com.example.housinghub.model.Chat
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.launch
 
-class OwnerMessagesFragment : Fragment() {
+class TenantMessageFragment : Fragment() {
 
     companion object {
-        private const val TAG = "OwnerMessagesFragment"
+        private const val TAG = "TenantMessageFragment"
     }
 
-    private var _binding: FragmentOwnerMessagesBinding? = null
+    private var _binding: FragmentMessagesBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var chatListAdapter: ChatListAdapter
@@ -35,7 +35,7 @@ class OwnerMessagesFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentOwnerMessagesBinding.inflate(inflater, container, false)
+        _binding = FragmentMessagesBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -52,7 +52,7 @@ class OwnerMessagesFragment : Fragment() {
         
         chatListAdapter = ChatListAdapter(
             onChatClick = { chat -> openChatActivity(chat) },
-            isOwnerView = true
+            isOwnerView = false
         )
     }
 
@@ -64,7 +64,7 @@ class OwnerMessagesFragment : Fragment() {
     }
 
     private fun loadChats() {
-        Log.d(TAG, "Loading chats for owner")
+        Log.d(TAG, "Loading chats for tenant")
         showLoading(true)
         
         // Start real-time listener for chats
@@ -90,12 +90,14 @@ class OwnerMessagesFragment : Fragment() {
     }
 
     private fun showChats(chats: List<Chat>) {
+        Log.d(TAG, "Displaying ${chats.size} chats in RecyclerView")
         binding.rvChats.visibility = View.VISIBLE
         binding.emptyStateLayout.visibility = View.GONE
         chatListAdapter.updateChats(chats)
     }
 
     private fun showEmptyState() {
+        Log.d(TAG, "Showing empty state")
         binding.rvChats.visibility = View.GONE
         binding.emptyStateLayout.visibility = View.VISIBLE
     }
@@ -111,9 +113,9 @@ class OwnerMessagesFragment : Fragment() {
     private fun openChatActivity(chat: Chat) {
         val intent = Intent(requireContext(), ChatActivity::class.java)
         intent.putExtra("chatId", chat.id)
-        intent.putExtra("chatName", chat.tenantName)
+        intent.putExtra("chatName", chat.ownerName)
         intent.putExtra("propertyTitle", chat.propertyTitle)
-        intent.putExtra("isOwnerView", true)
+        intent.putExtra("isOwnerView", false)
         startActivity(intent)
     }
 

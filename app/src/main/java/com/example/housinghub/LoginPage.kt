@@ -124,7 +124,8 @@ class LoginPage : AppCompatActivity() {
                                     sessionManager.saveUserData(
                                         ownerDoc.getString("fullName") ?: "",
                                         email,
-                                        ownerDoc.getString("mobileNumber") ?: ""
+                                        ownerDoc.getString("mobileNumber") ?: "",
+                                        "owner"
                                     )
                                     navigateToRoleHome("owner")
                                 } else {
@@ -139,7 +140,8 @@ class LoginPage : AppCompatActivity() {
                                                 sessionManager.saveUserData(
                                                     tenantDoc.getString("fullName") ?: "",
                                                     email,
-                                                    tenantDoc.getString("mobileNumber") ?: ""
+                                                    tenantDoc.getString("mobileNumber") ?: "",
+                                                    "tenant"
                                                 )
                                                 navigateToRoleHome("tenant")
                                             } else {
@@ -235,7 +237,8 @@ class LoginPage : AppCompatActivity() {
                                 sessionManager.saveUserData(
                                     document.getString("fullName") ?: user.displayName ?: "",
                                     email,
-                                    document.getString("mobileNumber") ?: user.phoneNumber ?: ""
+                                    document.getString("mobileNumber") ?: user.phoneNumber ?: "",
+                                    selectedRole!!
                                 )
                                 navigateToRoleHome(selectedRole!!)
                             } else {

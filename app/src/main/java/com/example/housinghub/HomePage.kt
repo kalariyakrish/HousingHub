@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.housinghub.databinding.ActivityHomePageBinding
+import com.example.housinghub.fragments.TenantMessageFragment
 import com.example.housinghub.ui.profile.ProfileFragment
 
 class HomePageActivity : AppCompatActivity() {
@@ -29,7 +30,7 @@ class HomePageActivity : AppCompatActivity() {
             val fragment: Fragment = when (item.itemId) {
                 R.id.nav_home -> HomeFragment()
                 R.id.nav_saved -> SavedFragment()
-                R.id.nav_messages -> MessageFragment()
+                R.id.nav_messages -> TenantMessageFragment()
                 R.id.nav_profile -> ProfileFragment()
                 else -> HomeFragment()
             }
